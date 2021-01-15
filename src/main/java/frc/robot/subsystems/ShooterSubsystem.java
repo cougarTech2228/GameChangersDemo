@@ -101,8 +101,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public void startShooterMotor() {
         double currentMoveSpeed = RobotContainer.getDrivebaseSubsystem().getCurrentMoveSpeedAverage();
 
-        if(currentMoveSpeed < 0.5 && currentMoveSpeed > -0.5 
-            && !RobotContainer.getClimberSubsystem().isClimbing()) { // make sure the robot is lower than half speed
+        if(currentMoveSpeed < 0.5 && currentMoveSpeed > -0.5) { // make sure the robot is lower than half speed
                 m_acquisitionSubsystem.stopAcquirerMotor();
                 m_acquisitionSubsystem.deployAcquirer();
                 m_isRunningShooterMotor = true;

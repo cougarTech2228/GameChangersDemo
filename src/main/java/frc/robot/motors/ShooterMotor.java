@@ -12,8 +12,6 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
-import frc.robot.util.Configuration;
-import frc.robot.util.ShuffleboardAdapter;
 
 public class ShooterMotor {//extends TalonSRXMotor {
 
@@ -27,7 +25,6 @@ public class ShooterMotor {//extends TalonSRXMotor {
         //super(Constants.SHOOTER_CAN_ID);
         
         m_talon = new WPI_TalonSRX(Constants.SHOOTER_CAN_ID);
-        Configuration.create(this); // Creates a configuration for the shooter speed on shuffleboard
 
         m_shooterMap = new HashMap<Integer, Double>();
 

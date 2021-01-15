@@ -84,17 +84,15 @@ public class AcquisitionSubsystem extends SubsystemBase {
      * the acquistion subsystem.
      */
     public void startAcquirerMotor() {//boolean shouldWait) {
-        if(!RobotContainer.getClimberSubsystem().isClimbing()) {
-            // if(shouldWait) {
-            //     new SequentialCommandGroup(
-            //         new WaitCommand(0.5)
-            //         .andThen(() -> m_acquisitionMotor.set(Constants.ACQUIRER_MOTOR_SPEED))
-            //     ).schedule();
-            // } else {
-                m_acquisitionMotor.set(Constants.ACQUIRER_MOTOR_SPEED);
-            //}
-            m_isRunningAcquirer = true;
-        }
+        // if(shouldWait) {
+        //     new SequentialCommandGroup(
+        //         new WaitCommand(0.5)
+        //         .andThen(() -> m_acquisitionMotor.set(Constants.ACQUIRER_MOTOR_SPEED))
+        //     ).schedule();
+        // } else {
+            m_acquisitionMotor.set(Constants.ACQUIRER_MOTOR_SPEED);
+        //}
+        m_isRunningAcquirer = true;
         
     }
 
@@ -110,9 +108,7 @@ public class AcquisitionSubsystem extends SubsystemBase {
      * Runs the acquirer motor in reverse
      */
     public void startAcquirerMotorReverse() {
-        if(!RobotContainer.getClimberSubsystem().isClimbing()) {
-            m_acquisitionMotor.set(-Constants.ACQUIRER_MOTOR_SPEED);
-        }
+        m_acquisitionMotor.set(-Constants.ACQUIRER_MOTOR_SPEED);
         m_isRunningAcquirer = true;
     }
 

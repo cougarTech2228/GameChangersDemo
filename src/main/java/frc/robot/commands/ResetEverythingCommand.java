@@ -23,8 +23,7 @@ public class ResetEverythingCommand extends SequentialCommandGroup {
 
     public ResetEverythingCommand(StorageSubsystem storageSubsystem, ShooterSubsystem shooterSubsystem,
                                   GarminLidarSubsystem garminLidarSubsystem, DrivebaseSubsystem driveBaseSubsystem,
-                                  AcquisitionSubsystem acquistionSubsystem, ClimberSubsystem climberSubsystem,
-                                  ControlPanelSubsystem controlPanelSubsystem) 
+                                  AcquisitionSubsystem acquistionSubsystem) 
     {
         addCommands(
             new PrintCommand("ALERT! ALERT! ROBOT MACHINE BROKE, RESETTING EVERYTHING!")
@@ -32,9 +31,6 @@ public class ResetEverythingCommand extends SequentialCommandGroup {
             //-----------Shooting/Storage------
             .andThen(() -> shooterSubsystem.setIsShooting(false)),
             RobotContainer.getRepopulateArrayCommand()
-            //----------Control Panel----------
-            .andThen(() -> controlPanelSubsystem.relatchInterrupts())
-            .andThen(() -> controlPanelSubsystem.setHasFiredRotate(false))
         );
         // Use addRequirements() here to declare subsystem dependencies.
         //addRequirements();

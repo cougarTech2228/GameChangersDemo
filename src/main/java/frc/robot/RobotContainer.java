@@ -19,10 +19,9 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
-import frc.robot.util.CommandToggler;
-import frc.robot.util.DriverMappings;
+import frc.robot.Toolkit.CT_CommandToggler;
 import frc.robot.util.TrajectoryManager;
-import frc.robot.util.CommandToggler.CommandState;
+import frc.robot.Toolkit.CT_CommandToggler.CommandState;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -43,16 +42,13 @@ public class RobotContainer {
   // private final static NavigationSubsystem m_navigationSubsystem = new
   // NavigationSubsystem();
   private final static TrajectoryManager m_trajectoryManager = new TrajectoryManager();
-  private final static ControlPanelSubsystem m_controlPanelSubsystem = new ControlPanelSubsystem();
   private final static DrivebaseSubsystem m_drivebaseSubsystem = new DrivebaseSubsystem();
   private final static AcquisitionSubsystem m_acquisitionSubsystem = new AcquisitionSubsystem();
   private final static StorageSubsystem m_storageSubsystem = new StorageSubsystem();
   private final static GarminLidarSubsystem m_garminLidarSubsystem = new GarminLidarSubsystem();
   private final static ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem(m_storageSubsystem,
       m_garminLidarSubsystem, m_acquisitionSubsystem);
-  private final static ClimberSubsystem m_climberSubsystem = new ClimberSubsystem();
 
-  private final static SendableChooser<Command> m_autoChooser = new SendableChooser<>();
   private final static SendableChooser<Double> m_manualVelocityChooser = new SendableChooser<>();
   // private final static TrajectoryCommand m_centerTrajectoryCommand = new
   // TrajectoryCommand(m_trajectoryManager.getCenterTrajectory(),
@@ -96,15 +92,6 @@ public class RobotContainer {
         new PrintCommand("resetting drum array").andThen(() -> m_storageSubsystem.resetDrum()));
     SmartDashboard.putData("Repopulate drum array", getRepopulateArrayCommand());
 
-    // Autonomous Options
-
-    SmartDashboard.putData("Auto Chooser", m_autoChooser);
-    m_autoChooser.setDefaultOption("Minimum", getMinAutoCommand());
-    m_autoChooser.addOption("Basic", getBasicAutoCommand());
-    m_autoChooser.addOption("Center", getCenterAutoCommand());
-    m_autoChooser.addOption("Left", getLeftAutoCommand());
-    m_autoChooser.addOption("Right", getRightAutoCommand());
-
     // Diagnostic buttons
 
     SmartDashboard.putData("Rotate Drum Forwards",
@@ -138,8 +125,6 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    //new DriverMappings("Tucker AKA Brix4thot / Zach", () -> {
-
       // --------------------------------------Acquirer Buttons-----------------------------------------------------
 
       new Button(OI::getXboxRightTriggerPressed).whenPressed(() -> m_acquisitionSubsystem.startAcquirerMotor());
@@ -148,7 +133,7 @@ public class RobotContainer {
       new Button(OI::getXboxLeftTriggerPressed).whenPressed(() -> m_acquisitionSubsystem.startAcquirerMotorReverse());
       new Button(OI::getXboxLeftTriggerPressed).whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
 
-      new CommandToggler( // Acquirer Motor Toggle - Right Bumper
+      new CT_CommandToggler( // Acquirer Motor Toggle - Right Bumper
           new InstantCommand(m_acquisitionSubsystem::deployAcquirer),
           new InstantCommand(m_acquisitionSubsystem::retractAcquirer)
       )
@@ -158,7 +143,7 @@ public class RobotContainer {
 
       //--------------------------------------Shooter Buttons--------------------------------------------------------
 
-      new CommandToggler( // Shooter Motor Toggle - Left Bumper
+      new CT_CommandToggler( // Shooter Motor Toggle - Left Bumper
           new InstantCommand(m_shooterSubsystem::startShooterMotor, m_shooterSubsystem),
           new InstantCommand(m_shooterSubsystem::stopShooterMotor, m_shooterSubsystem)
       )
@@ -166,7 +151,7 @@ public class RobotContainer {
       .setToggleButton(OI::getXboxLeftBumper)
       .setCycle(true);
 
-      new CommandToggler() // Shoot Entire Drum Toggle - A Button
+      new CT_CommandToggler() // Shoot Entire Drum Toggle - A Button
           .setDefaultState(CommandState.Interruptible)
           .addJumpCommand(
             getShootEntireDrumCommand().beforeStarting(() -> m_shooterSubsystem.setIsShooting(true)),
@@ -176,145 +161,11 @@ public class RobotContainer {
           .setToggleButton(OI::getXboxAButton)
           .setCycle(true);
 
-      //--------------------------------------Elevator Buttons-------------------------------------------------------
-      
-      new CommandToggler( // Deploy/Retract Elevator toggle - start button
-          new SequentialCommandGroup(
-            new InstantCommand(() -> m_drivebaseSubsystem.setShouldHalfSpeed(true)),
-            new InstantCommand(m_climberSubsystem::deployElevator)
-          ),
-          new SequentialCommandGroup(
-            new InstantCommand(() -> m_drivebaseSubsystem.setShouldHalfSpeed(false)),
-            new InstantCommand(m_climberSubsystem::retractElevator)
-          )
-      )
-      .setDefaultState(CommandState.Interruptible)
-      .setToggleButton(OI::getXboxStartButton)
-      .setCycle(true);
-
-      new Button(OI::getXboxDpadUp).whenHeld(m_climberSubsystem.cmdRaiseElevator());
-      new Button(OI::getXboxDpadDown).whenHeld(m_climberSubsystem.cmdLowerElevator());
-
       //--------------------------------------Dial Buttons-----------------------------------------------------------
 
       new Button(OI::getXboxBButton).whenPressed(getShakeDialCommand());
 
       new Button(OI::getXboxYButton).whenPressed(getRepopulateArrayCommand());
-
-      new CommandToggler( // Control Panel Motor - X Button
-          new InstantCommand(m_controlPanelSubsystem::startMotor),
-          new InstantCommand(m_controlPanelSubsystem::stopMotor)
-      )
-      .setDefaultState(CommandState.Interruptible)
-      .setToggleButton(OI::getXboxXButton)
-      .setCycle(true);
-
-    //});
-
-    // new DriverMappings("Justin our programming overlord", () -> {
-
-    //     // --------------------------------------Acquirer Buttons-----------------------------------------------------
-
-    //     new Button(OI::getXboxRightTriggerPressed).whenHeld(getShootWhenHeld().beforeStarting(() -> m_shooterSubsystem.setIsShooting(true)));
-
-    //     new CommandToggler( // Shooter Motor Toggle - Right Bumper
-    //       new InstantCommand(m_shooterSubsystem::startShooterMotor, m_shooterSubsystem),
-    //       new InstantCommand(m_shooterSubsystem::stopShooterMotor, m_shooterSubsystem)
-    //     )
-    //     .setDefaultState(CommandState.Interruptible)
-    //     .setToggleButton(OI::getXboxRightBumper)
-    //     .setCycle(true);
-
-    //     new Button(OI::getXboxLeftTriggerPressed).whenPressed(() -> m_acquisitionSubsystem.startAcquirerMotor());
-    //     new Button(OI::getXboxLeftTriggerPressed).whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
-
-    //     new Button(OI::getXboxLeftBumper).whenPressed(() -> m_acquisitionSubsystem.startAcquirerMotorReverse());
-    //     new Button(OI::getXboxLeftBumper).whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
-
-    //     //--------------------------------------Shooter Buttons--------------------------------------------------------
-
-    //     new CommandToggler( // Acquirer Motor Toggle - Right Joystick Button
-    //           new InstantCommand(m_acquisitionSubsystem::deployAcquirer),
-    //           new InstantCommand(m_acquisitionSubsystem::retractAcquirer)
-    //     )
-    //     .setDefaultState(CommandState.Interruptible)
-    //     .setToggleButton(OI::getXboxRightJoystickPress)
-    //     .setCycle(true);
-
-    //     //--------------------------------------Elevator Buttons-------------------------------------------------------
-
-    //     new CommandToggler( // Deploy/Retract Elevator toggle - start button
-    //         new InstantCommand(m_climberSubsystem::deployElevator),
-    //         new InstantCommand(m_climberSubsystem::retractElevator)
-    //     )
-    //     .setDefaultState(CommandState.Interruptible)
-    //     .setToggleButton(OI::getXboxStartButton)
-    //     .setCycle(true);
-
-    //     new Button(OI::getXboxDpadUp).whenHeld(m_climberSubsystem.cmdRaiseElevator());
-    //     new Button(OI::getXboxDpadDown).whenHeld(m_climberSubsystem.cmdLowerElevator());
-
-    //     //--------------------------------------Dial Buttons----------------------------------------------------------
-
-    //     new Button(OI::getXboxXButton).whenPressed(getShakeDial());
-    // });
-
-    // new DriverMappings("Diagnostics", () -> {
-    //     // --------------------------------------Acquirer Buttons-----------------------------------------------------
-
-    //     new Button(OI::getXboxRightTriggerPressed).whenPressed(() -> m_acquisitionSubsystem.startAcquirerMotor());
-    //     new Button(OI::getXboxRightTriggerPressed).whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
-
-    //     new Button(OI::getXboxLeftTriggerPressed).whenPressed(() -> m_acquisitionSubsystem.startAcquirerMotorReverse());
-    //     new Button(OI::getXboxLeftTriggerPressed).whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
-
-    //     new CommandToggler( // Acquirer Motor Toggle - Right Bumper
-    //       new InstantCommand(m_acquisitionSubsystem::deployAcquirer),
-    //       new InstantCommand(m_acquisitionSubsystem::retractAcquirer)
-    //   )
-    //   .setDefaultState(CommandState.Interruptible)
-    //   .setToggleButton(OI::getXboxRightBumper)
-    //   .setCycle(true);
-
-    //   //--------------------------------------Shooter Buttons--------------------------------------------------------
-
-    //   new CommandToggler( // Shooter Motor Toggle - Left Bumper
-    //       new InstantCommand(m_shooterSubsystem::startShooterMotor, m_shooterSubsystem),
-    //       new InstantCommand(m_shooterSubsystem::stopShooterMotor, m_shooterSubsystem)
-    //   )
-    //   .setDefaultState(CommandState.Interruptible)
-    //   .setToggleButton(OI::getXboxLeftBumper)
-    //   .setCycle(true);
-
-    //   new CommandToggler() // Shoot Entire Drum Toggle - A Button
-    //       .setDefaultState(CommandState.Interruptible)
-    //       .addJumpCommand(
-    //         getShootEntireDrumCommand().beforeStarting(() -> m_shooterSubsystem.setIsShooting(true)),
-    //         CommandState.Interruptible
-    //       )
-    //       .addCommand(null)
-    //       .setToggleButton(OI::getXboxAButton)
-    //       .setCycle(true);
-
-    //   //--------------------------------------Elevator Buttons-------------------------------------------------------
-      
-    //   new CommandToggler( // Deploy/Retract Elevator toggle - start button
-    //       new InstantCommand(m_climberSubsystem::deployElevator),
-    //       new InstantCommand(m_climberSubsystem::retractElevator)
-    //   )
-    //   .setDefaultState(CommandState.Interruptible)
-    //   .setToggleButton(OI::getXboxStartButton)
-    //   .setCycle(true);
-
-    //   new Button(OI::getXboxDpadUp).whenHeld(m_climberSubsystem.cmdRaiseElevator());
-    //   new Button(OI::getXboxDpadDown).whenHeld(m_climberSubsystem.cmdLowerElevator());
-
-    //   //--------------------------------------Dial Buttons-----------------------------------------------------------
-
-    //   new Button(OI::getXboxBButton).whenPressed(getShakeDial());
-    // });
-
-    // SmartDashboard.putData(DriverMappings.getChooser());
   }
 
   // Command Getters
@@ -325,7 +176,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return m_autoChooser.getSelected();
+    return null;
   }
 
   // Utilization Commands
@@ -336,16 +187,6 @@ public class RobotContainer {
 
   public static Double getManualVelocity() {
     return m_manualVelocityChooser.getSelected();
-  }
-
-  // Control Panel Commands
-
-  public static RotateControlPanelCommand getRotateControlPanelCommand() {
-    return new RotateControlPanelCommand(m_controlPanelSubsystem);
-  }
-
-  public static PositionControlPanelCommand getPositionControlPanelCommand() {
-    return new PositionControlPanelCommand(m_controlPanelSubsystem);
   }
 
   // Storage Commands
@@ -380,7 +221,7 @@ public class RobotContainer {
 
   public static ResetEverythingCommand getResetEverythingCommand() {
     return new ResetEverythingCommand(m_storageSubsystem, m_shooterSubsystem, m_garminLidarSubsystem,
-        m_drivebaseSubsystem, m_acquisitionSubsystem, m_climberSubsystem, m_controlPanelSubsystem);
+        m_drivebaseSubsystem, m_acquisitionSubsystem);
   }
 
   public static RepopulateArrayCommand getRepopulateArrayCommand() {
@@ -389,28 +230,6 @@ public class RobotContainer {
 
   public static ShakeDialCommand getShakeDialCommand() {
     return new ShakeDialCommand(m_storageSubsystem);
-  }
-
-  // Autonomous Commands
-
-  public static CenterAutoCommand getCenterAutoCommand() {
-    return new CenterAutoCommand(m_storageSubsystem, m_shooterSubsystem, m_drivebaseSubsystem, m_acquisitionSubsystem);
-  }
-
-  public static LeftAutoCommand getLeftAutoCommand() {
-    return new LeftAutoCommand(m_storageSubsystem, m_shooterSubsystem, m_drivebaseSubsystem, m_acquisitionSubsystem);
-  }
-
-  public static RightAutoCommand getRightAutoCommand() {
-    return new RightAutoCommand(m_storageSubsystem, m_shooterSubsystem, m_drivebaseSubsystem, m_acquisitionSubsystem);
-  }
-
-  public static MinAutoCommand getMinAutoCommand() {
-    return new MinAutoCommand(m_storageSubsystem, m_shooterSubsystem, m_drivebaseSubsystem, m_acquisitionSubsystem);
-  }
-
-  public static BasicAutoCommand getBasicAutoCommand() {
-    return new BasicAutoCommand(m_storageSubsystem, m_shooterSubsystem, m_drivebaseSubsystem, m_acquisitionSubsystem);
   }
 
   // Trajectory Commands
@@ -437,10 +256,6 @@ public class RobotContainer {
     return m_drivebaseSubsystem;
   }
 
-  public static ControlPanelSubsystem getControlPanel() {
-    return m_controlPanelSubsystem;
-  }
-
   public static AcquisitionSubsystem getAcquisitionSubsystem() {
     return m_acquisitionSubsystem;
   }
@@ -457,9 +272,6 @@ public class RobotContainer {
     return m_garminLidarSubsystem;
   }
 
-  public static ClimberSubsystem getClimberSubsystem() {
-    return m_climberSubsystem;
-  }
 
   // public static NavigationSubsystem getNavigationSubsystem() {
   // return m_navigationSubsystem;

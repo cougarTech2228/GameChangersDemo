@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.Toolkit;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 /**
  * A class dedicated to make it easy to make buttons toggle between or through multiple commands
  */
-public class CommandToggler {
+public class CT_CommandToggler {
 
     private boolean cycle;
     private List<Command> commands;
@@ -44,7 +44,7 @@ public class CommandToggler {
     /**
      * Creates a new default CommandToggler instance
      */
-    public CommandToggler() {
+    public CT_CommandToggler() {
         this.commands = new ArrayList<Command>();
         this.commandStates = new ArrayList<CommandState>();
         currentIndex = -1;
@@ -54,7 +54,7 @@ public class CommandToggler {
      * Creates a new CommandToggler that toggles between the commands passed in
      * @param commands
      */
-    public CommandToggler(Command... commands) {
+    public CT_CommandToggler(Command... commands) {
         this.commands = Arrays.asList(commands);
         this.commandStates = new ArrayList<CommandState>();
         setDefaultState(CommandState.Normal);
@@ -66,7 +66,7 @@ public class CommandToggler {
      * @param command
      * @param state
      */
-    public CommandToggler addCommand(Command command, CommandState state) {
+    public CT_CommandToggler addCommand(Command command, CommandState state) {
         commands.add(command);
         commandStates.add(state);
         return this;
@@ -77,7 +77,7 @@ public class CommandToggler {
      * @param command
      * @param state
      */
-    public CommandToggler addJumpCommand(Command command, CommandState state) {
+    public CT_CommandToggler addJumpCommand(Command command, CommandState state) {
         addCommand(command.andThen(() -> runIndex(currentIndex + 1)), state);
         return this;
     }
@@ -86,7 +86,7 @@ public class CommandToggler {
      * but when this command finishes, it will automatically jump to the next command and run it
      * @param command
      */
-    public CommandToggler addJumpCommand(Command command) {
+    public CT_CommandToggler addJumpCommand(Command command) {
         addJumpCommand(command, defaultCmdState);
         return this;
     }
@@ -94,7 +94,7 @@ public class CommandToggler {
      * Adds the specified command onto the toggling list with the default CommandState
      * @param command
      */
-    public CommandToggler addCommand(Command command) {
+    public CT_CommandToggler addCommand(Command command) {
         return addCommand(command, defaultCmdState);
     }
     /**
@@ -103,7 +103,7 @@ public class CommandToggler {
      * @return
      */
     @SuppressWarnings("all")
-    public CommandToggler setDefaultState(CommandState state) {
+    public CT_CommandToggler setDefaultState(CommandState state) {
         commandStates = new ArrayList<CommandState>();
         for(Command c : commands) {
             commandStates.add(state);
@@ -113,7 +113,7 @@ public class CommandToggler {
     /**
      * When the robot is enabled, it will jump to running the first command
      */
-    public CommandToggler startOnEnable() {
+    public CT_CommandToggler startOnEnable() {
         new Button(RobotState::isEnabled).whenActive(() -> {
             System.out.println("enabled");
             runIndex(0);
@@ -126,7 +126,7 @@ public class CommandToggler {
      * @param index the index of the command to jump to
      * @param condition the condition that must be fulfilled
      */
-    public CommandToggler jumpTo(int index, BooleanSupplier condition) {
+    public CT_CommandToggler jumpTo(int index, BooleanSupplier condition) {
         new Trigger(condition).whenActive(() -> {
             runIndex(index);
             System.out.println("GAMMER");
@@ -139,7 +139,7 @@ public class CommandToggler {
      * (The exact opposite happens for the ToggleDownButton if one is assigned)
      * @param on
      */
-    public CommandToggler setCycle(boolean on) {
+    public CT_CommandToggler setCycle(boolean on) {
         cycle = on;
         return this;
     }
@@ -148,7 +148,7 @@ public class CommandToggler {
      * @param pressed = a reference to the method testing the button press
      * Ex: .setCommandToggler(OI::getXboxLeftBumper)
      */
-    public CommandToggler setToggleButton(BooleanSupplier pressed) {
+    public CT_CommandToggler setToggleButton(BooleanSupplier pressed) {
         return setToggleButton(new Button(pressed));
     }
 
@@ -179,7 +179,7 @@ public class CommandToggler {
      * Assigns a button to control toggling upward through the command list
      * @param button = a Button object
      */
-    public CommandToggler setToggleButton(Button button) {
+    public CT_CommandToggler setToggleButton(Button button) {
         
         if(upButton == null) {
             upButton = button;
@@ -187,29 +187,7 @@ public class CommandToggler {
                 runIndex(currentIndex + 1);
             });
         }
-        /*
-        if(upButton == null) {
-            upButton = new Button(() -> button.get() || (start && RobotState.isEnabled()));
-            upButton.whenPressed(() -> {
-                start = false;
-                if(currentIndex != -1) {
-                    CommandState state = commandStates.get(currentIndex);
-                    if(state == CommandState.Precedented && !commands.get(currentIndex).isFinished()) {
-                        return;
-                    }
-                    if(state == CommandState.Interruptible && commands.get(currentIndex) != null) {
-                        commands.get(currentIndex).cancel();
-                    }
-                }
-                if(commands.get(nextIndex) != null) {
-                    CommandScheduler.getInstance().schedule(commands.get(nextIndex));
-                }
-                currentIndex = nextIndex;
-
-                nextIndex++;
-                if(nextIndex > commands.size() - 1) nextIndex = cycle ? 0 : currentIndex;
-            });
-        }*/
+        
         return this;
     }
     /**
@@ -217,38 +195,20 @@ public class CommandToggler {
      * @param pressed = a reference to the method testing the button press
      * Ex: .setToggleDownButton(OI::getXboxRightBumper)
      */
-    public CommandToggler setToggleDownButton(BooleanSupplier pressed) {
+    public CT_CommandToggler setToggleDownButton(BooleanSupplier pressed) {
         return setToggleDownButton(new Button(pressed));
     }
     /**
      * Assigns a button to control toggling downward through the command list
      * @param button = a Button object
      */
-    public CommandToggler setToggleDownButton(Button button) {
+    public CT_CommandToggler setToggleDownButton(Button button) {
         if(downButton == null) {
             downButton = button;
             downButton.whenPressed(() -> {
                 runIndex(currentIndex - 1);
             });
-            /*
-            downButton.whenPressed(() -> {
-                if(currentIndex != -1) {
-                    CommandState state = commandStates.get(currentIndex);
-                    if(state == CommandState.Precedented && !commands.get(currentIndex).isFinished()) {
-                        return;
-                    }
-                    if(state == CommandState.Interruptible) {
-                        commands.get(currentIndex).cancel();
-                    }
-                }
-                if(commands.get(nextIndex) != null) {
-                    CommandScheduler.getInstance().schedule(commands.get(nextIndex));
-                }
-                currentIndex = nextIndex;
-
-                nextIndex--;
-                if(nextIndex < 0) nextIndex = cycle ? commands.size() - 1 : currentIndex;
-            });*/
+            
         }
         return this;
     }
