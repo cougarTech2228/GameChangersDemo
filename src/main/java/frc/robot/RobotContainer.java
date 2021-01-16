@@ -15,12 +15,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import frc.robot.Toolkit.CT_CommandToggler;
-import frc.robot.util.TrajectoryManager;
+// import frc.robot.util.TrajectoryManager;
 import frc.robot.Toolkit.CT_CommandToggler.CommandState;
 
 /**
@@ -36,12 +35,8 @@ public class RobotContainer {
   private final static OI m_oi = new OI();
 
   // Robot Subsystems
-  // Since it might take some time for the navigation module (Pigeon or
-  // ADXRS450_Gyro) to
-  // calibrate and come up, we should put this instantiation first.
-  // private final static NavigationSubsystem m_navigationSubsystem = new
-  // NavigationSubsystem();
-  private final static TrajectoryManager m_trajectoryManager = new TrajectoryManager();
+
+  // private final static TrajectoryManager m_trajectoryManager = new TrajectoryManager();
   private final static DrivebaseSubsystem m_drivebaseSubsystem = new DrivebaseSubsystem();
   private final static AcquisitionSubsystem m_acquisitionSubsystem = new AcquisitionSubsystem();
   private final static StorageSubsystem m_storageSubsystem = new StorageSubsystem();
@@ -89,7 +84,7 @@ public class RobotContainer {
     SmartDashboard.putData("Robot machine broke, reset",
         RobotContainer.getResetEverythingCommand().beforeStarting(() -> CommandScheduler.getInstance().cancelAll()));
     SmartDashboard.putData("Reset Drum Array",
-        new PrintCommand("resetting drum array").andThen(() -> m_storageSubsystem.resetDrum()));
+        new PrintCommand("resetting drum array").andThen(() -> m_storageSubsystem.resetBallArray()));
     SmartDashboard.putData("Repopulate drum array", getRepopulateArrayCommand());
 
     // Diagnostic buttons
@@ -113,8 +108,6 @@ public class RobotContainer {
     SmartDashboard.putData("Retract Acquirer", new InstantCommand(m_acquisitionSubsystem::retractAcquirer));
     SmartDashboard.putData("Reverse Acquirer", new InstantCommand(m_acquisitionSubsystem::startAcquirerMotorReverse));
 
-    // TODO - do we need stuff for elevator retract/deploy?
-
   }
 
   /**
@@ -125,20 +118,30 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
+      Button rightTrigger = new Button(OI::getXboxRightTriggerPressed);
+      Button leftTrigger = new Button(OI::getXboxLeftTriggerPressed);
+      Button rightBumper = new Button(OI::getXboxRightBumper);
+      Button leftBumper = new Button(OI::getXboxLeftBumper);
+
+      Button aButton = new Button(OI::getXboxAButton);
+      Button bButton = new Button(OI::getXboxBButton);
+      Button xButton = new Button(OI::getXboxXButton);
+      Button yButton = new Button(OI::getXboxYButton);
+
       // --------------------------------------Acquirer Buttons-----------------------------------------------------
 
-      new Button(OI::getXboxRightTriggerPressed).whenPressed(() -> m_acquisitionSubsystem.startAcquirerMotor());
-      new Button(OI::getXboxRightTriggerPressed).whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
+      rightTrigger.whenPressed(() -> m_acquisitionSubsystem.startAcquirerMotor());
+      rightTrigger.whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
 
-      new Button(OI::getXboxLeftTriggerPressed).whenPressed(() -> m_acquisitionSubsystem.startAcquirerMotorReverse());
-      new Button(OI::getXboxLeftTriggerPressed).whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
+      leftTrigger.whenPressed(() -> m_acquisitionSubsystem.startAcquirerMotorReverse());
+      leftTrigger.whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
 
       new CT_CommandToggler( // Acquirer Motor Toggle - Right Bumper
           new InstantCommand(m_acquisitionSubsystem::deployAcquirer),
           new InstantCommand(m_acquisitionSubsystem::retractAcquirer)
       )
       .setDefaultState(CommandState.Interruptible)
-      .setToggleButton(OI::getXboxRightBumper)
+      .setToggleButton(rightBumper)
       .setCycle(true);
 
       //--------------------------------------Shooter Buttons--------------------------------------------------------
@@ -148,7 +151,7 @@ public class RobotContainer {
           new InstantCommand(m_shooterSubsystem::stopShooterMotor, m_shooterSubsystem)
       )
       .setDefaultState(CommandState.Interruptible)
-      .setToggleButton(OI::getXboxLeftBumper)
+      .setToggleButton(leftBumper)
       .setCycle(true);
 
       new CT_CommandToggler() // Shoot Entire Drum Toggle - A Button
@@ -158,14 +161,14 @@ public class RobotContainer {
             CommandState.Interruptible
           )
           .addCommand(null)
-          .setToggleButton(OI::getXboxAButton)
+          .setToggleButton(aButton)
           .setCycle(true);
 
       //--------------------------------------Dial Buttons-----------------------------------------------------------
 
-      new Button(OI::getXboxBButton).whenPressed(getShakeDialCommand());
+      bButton.whenPressed(getShakeDialCommand());
 
-      new Button(OI::getXboxYButton).whenPressed(getRepopulateArrayCommand());
+      yButton.whenPressed(getRepopulateArrayCommand());
   }
 
   // Command Getters
@@ -232,24 +235,6 @@ public class RobotContainer {
     return new ShakeDialCommand(m_storageSubsystem);
   }
 
-  // Trajectory Commands
-
-  // public static TrajectoryCommand getLeftTrajectoryCommand() {
-  // return m_leftTrajectoryCommand;
-  // }
-
-  // public static TrajectoryCommand getRightTrajectoryCommand() {
-  // return m_rightTrajectoryCommand;
-  // }
-
-  // public static TrajectoryCommand getCenterTrajectoryCommand() {
-  // return m_centerTrajectoryCommand;
-  // }
-
-  // public static TrajectoryCommand getBasicTrajectoryCommand() {
-  // return m_basicTrajectoryCommand;
-  // }
-
   // Subsystem Getters
 
   public static DrivebaseSubsystem getDrivebaseSubsystem() {
@@ -272,14 +257,4 @@ public class RobotContainer {
     return m_garminLidarSubsystem;
   }
 
-
-  // public static NavigationSubsystem getNavigationSubsystem() {
-  // return m_navigationSubsystem;
-  // }
-
-  // Other methods
-
-  public static void scheduleInstantResetOdometryCommand() {
-    new InstantCommand(m_drivebaseSubsystem::resetOdometry, m_drivebaseSubsystem).schedule();
-  }
 }

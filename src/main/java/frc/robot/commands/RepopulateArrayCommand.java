@@ -21,7 +21,7 @@ public class RepopulateArrayCommand extends SequentialCommandGroup {
         addCommands(
             new PrintCommand("Repopulate Array Command")
             .andThen(() -> m_storageSubsystem.setIsRepopulating(true))
-            .andThen(() -> m_storageSubsystem.resetDrum())
+            .andThen(() -> m_storageSubsystem.resetBallArray())
             .andThen(() -> populateIndex())
             .andThen(RobotContainer.getRotateDrumOneSectionCommand())
             .andThen(() -> populateIndex())

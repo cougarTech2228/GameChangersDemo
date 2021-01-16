@@ -38,7 +38,6 @@ public class StorageSubsystem extends SubsystemBase {
         .add(m_ballArray)
         .withWidget("DrumWidget");
 
-        //SmartDashboard.putData(m_ballArray);
     }
 
     @Override
@@ -46,9 +45,9 @@ public class StorageSubsystem extends SubsystemBase {
 
         if (!RobotContainer.getShooterSubsystem().getIsShooting()) 
         {
-            if (!m_inputAcquireBallChecker.get() && !m_hasBeenTripped)  // is there a ball in the acquire position?
+            if (!m_inputAcquireBallChecker.get() && !m_hasBeenTripped)  // Is there a ball in the acquire position?
             {
-                if (!m_isFull) // if the drum is full, dont try to check if it needs to rotate again
+                if (!m_isFull) // If the drum is full, dont try to check if it needs to rotate again
                 {
                     if (!m_isRepopulating) 
                     {
@@ -95,7 +94,7 @@ public class StorageSubsystem extends SubsystemBase {
     /**
      * Sets all elements in drumArray to false Sets m_isFull to false
      */
-    public void resetDrum() {
+    public void resetBallArray() {
         System.out.println("reset drum");
         m_ballArray.data = 0;
     }
