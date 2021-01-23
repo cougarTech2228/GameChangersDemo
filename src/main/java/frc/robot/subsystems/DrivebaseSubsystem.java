@@ -203,8 +203,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		leftVelocity *= -1;
 		rightVelocity *= -1;
 
-		var leftAccel = (leftVelocity - edgesPerDecisecToMetersPerSec(m_leftMaster.getSelectedSensorVelocity())) / .02;
-		var rightAccel = (rightVelocity - edgesPerDecisecToMetersPerSec(m_rightMaster.getSelectedSensorVelocity()))
+		var leftAccel = (leftVelocity - edgesPerDecisecToMetersPerSec((int)Math.round(m_leftMaster.getSelectedSensorVelocity()))) / .02;
+		var rightAccel = (rightVelocity - edgesPerDecisecToMetersPerSec((int)Math.round(m_rightMaster.getSelectedSensorVelocity())))
 				/ .02;
 
 		var leftFeedForwardVolts = Constants.FEED_FORWARD.calculate(leftVelocity, leftAccel);
@@ -238,7 +238,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	 * 
 	 * @return left encoder position
 	 */
-	public int getLeftEncoderPosition() {
+	public double getLeftEncoderPosition() {
 		return m_leftMaster.getSelectedSensorPosition(0);
 	}
 
@@ -247,7 +247,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	 * 
 	 * @return right encoder position
 	 */
-	public int getRightEncoderPosition() {
+	public double getRightEncoderPosition() {
 		return m_rightMaster.getSelectedSensorPosition(0);
 	}
 
