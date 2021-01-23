@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.StorageSubsystem;
 
 /**
  * ShootEntireDrumCommand
@@ -15,28 +16,25 @@ import frc.robot.subsystems.ShooterSubsystem;
 public class ShootEntireDrumCommand extends SequentialCommandGroup {
     @SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
 
-    public ShootEntireDrumCommand(ShooterSubsystem shooterSubsystem) {
-        //System.out.println("ShootEntireDrumCommand");
+    public ShootEntireDrumCommand(ShooterSubsystem shooterSubsystem, StorageSubsystem storageSubsystem) {
         addCommands(
             new PrintCommand("Shoot entire drum")
             .andThen(() -> RobotContainer.getDrivebaseSubsystem().setShouldHalfSpeed(true)),
-            RobotContainer.getRotateDrumOneSectionCommand(),
-            new PrintCommand("Shoot 1"),
+            RobotContainer.getIndexDrumCommand(storageSubsystem.getDrumShooterPositionInput(), false),
+            new WaitCommand(0.5),
             RobotContainer.getTryToShootCommand(),
             new WaitCommand(Constants.TIME_BETWEEN_SHOTS),
-            new PrintCommand("Shoot 2"),
             RobotContainer.getTryToShootCommand(),
             new WaitCommand(Constants.TIME_BETWEEN_SHOTS),
-            new PrintCommand("Shoot 3"),
-            RobotContainer.getTryToShootCommand(),
-            new WaitCommand(Constants.TIME_BETWEEN_SHOTS),  
-            new PrintCommand("Shoot 4"),
             RobotContainer.getTryToShootCommand(),
             new WaitCommand(Constants.TIME_BETWEEN_SHOTS),
-            new PrintCommand("Shoot 5"),
+            RobotContainer.getTryToShootCommand(),
+            new WaitCommand(Constants.TIME_BETWEEN_SHOTS),
             RobotContainer.getTryToShootCommand()
-            .andThen(() -> shooterSubsystem.setIsShooting(false))
-            .andThen(() -> RobotContainer.getDrivebaseSubsystem().setShouldHalfSpeed(false))
+            .andThen(() -> {
+                shooterSubsystem.setIsShooting(false);
+                RobotContainer.getDrivebaseSubsystem().setShouldHalfSpeed(false);
+            })
         );
         // Use addRequirements() here to declare subsystem dependencies.
         //addRequirements();

@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import frc.robot.Toolkit.CT_CommandToggler;
+import frc.robot.Toolkit.CT_DigitalInput;
 // import frc.robot.util.TrajectoryManager;
 import frc.robot.Toolkit.CT_CommandToggler.CommandState;
 
@@ -37,12 +38,12 @@ public class RobotContainer {
   // Robot Subsystems
 
   // private final static TrajectoryManager m_trajectoryManager = new TrajectoryManager();
+  private final static VisionSubsystem m_visionSubsystem = new VisionSubsystem();
   private final static DrivebaseSubsystem m_drivebaseSubsystem = new DrivebaseSubsystem();
   private final static AcquisitionSubsystem m_acquisitionSubsystem = new AcquisitionSubsystem();
   private final static StorageSubsystem m_storageSubsystem = new StorageSubsystem();
-  private final static GarminLidarSubsystem m_garminLidarSubsystem = new GarminLidarSubsystem();
   private final static ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem(m_storageSubsystem,
-      m_garminLidarSubsystem, m_acquisitionSubsystem);
+      m_visionSubsystem, m_acquisitionSubsystem);
 
   private final static SendableChooser<Double> m_manualVelocityChooser = new SendableChooser<>();
   // private final static TrajectoryCommand m_centerTrajectoryCommand = new
@@ -81,8 +82,7 @@ public class RobotContainer {
 
     // Command Buttons
 
-    SmartDashboard.putData("Robot machine broke, reset",
-        RobotContainer.getResetEverythingCommand().beforeStarting(() -> CommandScheduler.getInstance().cancelAll()));
+    SmartDashboard.putData("Cancel all commands", new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
     SmartDashboard.putData("Reset Drum Array",
         new PrintCommand("resetting drum array").andThen(() -> m_storageSubsystem.resetBallArray()));
     SmartDashboard.putData("Repopulate drum array", getRepopulateArrayCommand());
@@ -99,7 +99,7 @@ public class RobotContainer {
         new InstantCommand(() -> m_shooterSubsystem.setIsShooting(true), m_shooterSubsystem));
     SmartDashboard.putData("Change mode to acquiring",
         new InstantCommand(() -> m_shooterSubsystem.setIsShooting(false), m_shooterSubsystem));
-    SmartDashboard.putData("Rotate drum one index", getRotateDrumOneSectionCommand());
+    SmartDashboard.putData("Rotate drum one index", getIndexDrumCommand(m_storageSubsystem.getDrumStoragePositionInput(), true));
     SmartDashboard.putData("Bopper", getBopperCommand());
     SmartDashboard.putData("Wiggle", getShakeDialCommand());
     SmartDashboard.putData("Run Acquirer Motor", new InstantCommand(() -> m_acquisitionSubsystem.startAcquirerMotor()));
@@ -164,6 +164,7 @@ public class RobotContainer {
           .setToggleButton(aButton)
           .setCycle(true);
 
+
       //--------------------------------------Dial Buttons-----------------------------------------------------------
 
       bButton.whenPressed(getShakeDialCommand());
@@ -194,8 +195,12 @@ public class RobotContainer {
 
   // Storage Commands
 
-  public static RotateDrumOneSectionCommand getRotateDrumOneSectionCommand() {
-    return new RotateDrumOneSectionCommand(m_storageSubsystem, m_shooterSubsystem);
+  public static IndexDrumCommand getIndexDrumCommand(CT_DigitalInput input,boolean ignoreCell) {
+    //if(m_shooterSubsystem.getIsShooting()) {
+      //return new IndexDrumCommand(m_storageSubsystem, m_storageSubsystem.getDrumShooterPositionInput(), ignoreCell);
+    //} else {
+      return new IndexDrumCommand(m_storageSubsystem, input, ignoreCell);
+    //}
   }
 
   // Shooting Commands
@@ -204,16 +209,8 @@ public class RobotContainer {
     return new TryToShootCommand(m_shooterSubsystem, m_storageSubsystem);
   }
 
-  public static ShootOnceCommand getShootOnceCommand() {
-    return new ShootOnceCommand(m_shooterSubsystem);
-  }
-
   public static ShootEntireDrumCommand getShootEntireDrumCommand() {
-    return new ShootEntireDrumCommand(m_shooterSubsystem);
-  }
-
-  public static ShootWhenHeldCommand getShootWhenHeld() {
-    return new ShootWhenHeldCommand(m_shooterSubsystem);
+    return new ShootEntireDrumCommand(m_shooterSubsystem, m_storageSubsystem);
   }
 
   public static BopperCommand getBopperCommand() {
@@ -222,13 +219,8 @@ public class RobotContainer {
 
   // Diagnostic Commands
 
-  public static ResetEverythingCommand getResetEverythingCommand() {
-    return new ResetEverythingCommand(m_storageSubsystem, m_shooterSubsystem, m_garminLidarSubsystem,
-        m_drivebaseSubsystem, m_acquisitionSubsystem);
-  }
-
   public static RepopulateArrayCommand getRepopulateArrayCommand() {
-    return new RepopulateArrayCommand(m_storageSubsystem);
+    return new RepopulateArrayCommand(m_storageSubsystem, m_shooterSubsystem);
   }
 
   public static ShakeDialCommand getShakeDialCommand() {
@@ -253,8 +245,8 @@ public class RobotContainer {
     return m_shooterSubsystem;
   }
 
-  public static GarminLidarSubsystem getGarminLidarSubsystem() {
-    return m_garminLidarSubsystem;
+  public static VisionSubsystem getVisionSubsystem() {
+    return m_visionSubsystem;
   }
 
 }

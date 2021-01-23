@@ -2,6 +2,7 @@ package frc.robot.Toolkit;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.InterruptHandlerFunction;
+import edu.wpi.first.wpilibj2.command.Command;
 
 public class CT_DigitalInput extends DigitalInput {
 
@@ -10,6 +11,7 @@ public class CT_DigitalInput extends DigitalInput {
     private boolean m_isInterruptLatched;
     private boolean m_negateLogic;
     private Runnable m_interruptRunnable;
+    private Command m_interruptCommand;
 
     /**
      * Negate logic is useful if you want to reverse the output of getStatus(). A use for setting this variable true
@@ -66,6 +68,7 @@ public class CT_DigitalInput extends DigitalInput {
         m_lastMethodToRun = m_methodToRun;
         m_isInterruptLatched = false;
         m_interruptRunnable = null;
+        m_interruptCommand = null;
     }
 
     /**
@@ -125,6 +128,34 @@ public class CT_DigitalInput extends DigitalInput {
      * FALLING_EDGE_MASK = 256;
      */
 
+     /**
+     * Sets an interrupt for the digital input. Can be used in conjunction with the 
+     * onlyHandleInterruptsWhen() method to only run the method when certain conditions are met.
+     * 
+     * @param command the command that will be scheduled when the interrupt is fired.
+     * @param interruptOnRisingEdge fire interrupt on the rising edge.
+     * @param interruptOnFallingEdge fire interrupt on the falling edge.
+     */
+    public void setInterrupt(Command command, boolean interruptOnRisingEdge, boolean interruptOnFallingEdge) {
+
+        m_interruptCommand = command;
+
+        requestInterrupts(new InterruptHandlerFunction<Object>() {
+
+            @Override
+            public void interruptFired(int interruptAssertedMask, Object param) {
+                if(m_isInterruptLatched) {
+                    m_interruptCommand.schedule();
+                } else { /* Do Nothing */ }
+
+            }
+        });
+
+        setUpSourceEdge(interruptOnFallingEdge, interruptOnRisingEdge);
+        enableInterrupts();
+        m_isInterruptLatched = true;
+    }
+
     /**
      * Sets an interrupt for the digital input. Can be used in conjunction with the 
      * onlyHandleInterruptsWhen() method to only run the method when certain conditions are met.
@@ -153,6 +184,8 @@ public class CT_DigitalInput extends DigitalInput {
         m_isInterruptLatched = true;
     }
 
+    
+
     /**
      * Enables the interrupts when all of the conditions are true.
      * Use this method in a periodic for full effect.
@@ -164,6 +197,15 @@ public class CT_DigitalInput extends DigitalInput {
         } else {
             m_isInterruptLatched = false;
         }
+    }
+
+    /**
+     * Setter method for the latch interrupt variable. Will decide if said interrupt will be run or not.
+     * 
+     * @param latchInterupt boolean variable to be set to m_isInterruptLatched
+     */
+    public void setInterruptLatched(boolean latchInterupt) {
+        m_isInterruptLatched = latchInterupt;
     }
 
     /**

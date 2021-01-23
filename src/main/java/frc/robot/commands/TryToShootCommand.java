@@ -38,7 +38,7 @@ public class TryToShootCommand extends SequentialCommandGroup {
             new PrintCommand("TryToShootOnce")
             .andThen(() -> {
                 double curSpeed = shooterSubsystem.getShooterMotor().getSpeed();
-                int curDistance = RobotContainer.getGarminLidarSubsystem().getAverage();
+                int curDistance = (int)RobotContainer.getVisionSubsystem().getLidarAverage();
                 double newSpeed = shooterSubsystem.getShooterMotor().closestDistance(curDistance);
                 if(curSpeed > 0 && Math.abs(newSpeed - curSpeed) > 10000) {
                     shooterSubsystem.getShooterMotor().start(curDistance);
@@ -46,7 +46,8 @@ public class TryToShootCommand extends SequentialCommandGroup {
             }),
             RobotContainer.getBopperCommand()
             .andThen(() -> storageSubsystem.getBallArray().shoot()),
-            RobotContainer.getRotateDrumOneSectionCommand()
+            RobotContainer.getIndexDrumCommand(storageSubsystem.getDrumShooterPositionInput(), false)
+            //RobotContainer.getRotateDrumOneSectionCommand()
         );
         // Use addRequirements() here to declare subsystem dependencies.
         //addRequirements();

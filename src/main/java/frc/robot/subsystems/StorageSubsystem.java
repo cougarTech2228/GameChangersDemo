@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -11,13 +13,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.util.BallArray;
+import frc.robot.Toolkit.CT_DigitalInput;
+import frc.robot.commands.IndexDrumCommand;
 
 public class StorageSubsystem extends SubsystemBase {
 
-    private DigitalInput m_inputAcquireBallChecker;
-    private DigitalInput m_inputAcquirePositionChecker;
+    private CT_DigitalInput m_cellStorageInput;
+    private CT_DigitalInput m_drumStoragePositionInput;
+    private CT_DigitalInput m_drumShooterPositionInput;
     private Spark m_drumSparkMotor;
-    private boolean m_hasBeenTripped;
     private boolean m_isFull;
     private boolean m_isRepopulating;
     private BallArray m_ballArray = new BallArray();
@@ -25,12 +29,24 @@ public class StorageSubsystem extends SubsystemBase {
     public StorageSubsystem() {
         register();
 
-        m_inputAcquireBallChecker = new DigitalInput(Constants.ACQUIRE_BALL_DIO);
-        m_inputAcquirePositionChecker = new DigitalInput(Constants.ACQUIRE_POSITION_DIO);
         m_drumSparkMotor = new Spark(Constants.DRUM_SPARK_PWM_ID);
 
+        m_drumStoragePositionInput = new CT_DigitalInput(Constants.ACQUIRE_POSITION_DIO);
+        m_drumStoragePositionInput.setInterrupt(() -> endIndexDrum(m_drumStoragePositionInput), true, false);
+        m_drumStoragePositionInput.setInterruptLatched(false);
+
+        m_drumShooterPositionInput = new CT_DigitalInput(Constants.SHOOTER_POSITION_DIO);
+        m_drumShooterPositionInput.setInterrupt(() -> endIndexDrum(m_drumShooterPositionInput), true, false);
+        m_drumShooterPositionInput.setInterruptLatched(false);
+
+        m_cellStorageInput = new CT_DigitalInput(Constants.ACQUIRE_BALL_DIO, true);
+
+        m_cellStorageInput.setInterrupt(new IndexDrumCommand(this, m_drumStoragePositionInput, false), true, false);
+        
+
+        
+
         m_isFull = false;
-        m_hasBeenTripped = false;
         m_isRepopulating = false;
         SendableRegistry.add(m_ballArray, "balls");
 
@@ -40,36 +56,58 @@ public class StorageSubsystem extends SubsystemBase {
 
     }
 
+    /**
+     * Will index the drum by spinning the motor and latching the position checker after 0.2 seconds.
+     * 
+     * @param input Digital Input that will be latched
+     * @param ignoreCell will ignore a detected cell, should only be true when calling 
+     *                   this method from a shuffleboard button.
+     */
+    // public void indexDrum(CT_DigitalInput input, boolean ignoreCell) {
+        
+    //     new SequentialCommandGroup(
+    //         new InstantCommand(() -> {
+    //             System.out.println("Index drum because cell input interrupted");
+
+    //             if(m_cellStorageInput.getStatus() && !ignoreCell) {
+    //                 System.out.println("Acquiring ball");
+    //                 m_ballArray.acquire();
+    //             }
+    //             m_ballArray.rotate();
+
+    //             startDrumMotor();
+    //         }),
+    //         new WaitCommand(0.2),
+    //         new InstantCommand(() -> input.setInterruptLatched(true))
+    //     ).schedule();
+    // }
+
+/**
+ * Ends the indexing of the drum by stopping the motor, checking if the drum is full, and unlatching the interrupt.
+ * 
+ * @param input Digital Input whose interrupt will be unlatched
+ */
+    public void endIndexDrum(CT_DigitalInput input) {
+        stopDrumMotor();
+        checkIfDrumFull();
+        input.setInterruptLatched(false);
+    }
+
     @Override
     public void periodic() {
 
-        if (!RobotContainer.getShooterSubsystem().getIsShooting()) 
-        {
-            if (!m_inputAcquireBallChecker.get() && !m_hasBeenTripped)  // Is there a ball in the acquire position?
-            {
-                if (!m_isFull) // If the drum is full, dont try to check if it needs to rotate again
-                {
-                    if (!m_isRepopulating) 
-                    {
-                        System.out.println("Ball detected");
-                        m_hasBeenTripped = true;
-                        m_ballArray.acquire();
+        // Conditions for the drum to be able to index
+        boolean[] drumConditions = {
+            !RobotContainer.getShooterSubsystem().getIsShooting(), // Robot is not shooting, 
+            !m_isFull, // Robot is not full,
+            !m_isRepopulating // Robot is not repopulating
+        };
 
-                            new SequentialCommandGroup(
-                                new WaitCommand(0.1),
-                                RobotContainer.getRotateDrumOneSectionCommand()
-                            ).schedule();
-
-                    } else { /* System.out.println("Ball detected, but robot is repopulating"); */ }
-
-                } else { /* System.out.println("Ball detected, but robot is shooting"); */ }
-
-            } else { /* System.out.println("Ball detected, but robot is full"); */  }
-        }
+        m_cellStorageInput.onlyHandleInterruptsWhen(drumConditions);
 
         SmartDashboard.putBoolean("Is Robot Full", m_isFull);
-        SmartDashboard.putBoolean("Is Acquire Flag Tripped", !m_inputAcquirePositionChecker.get());
-        SmartDashboard.putBoolean("Is Acquire Slot Occupied", !m_inputAcquireBallChecker.get());
+        SmartDashboard.putBoolean("Is Acquire Flag Tripped", !m_drumStoragePositionInput.get());
+        SmartDashboard.putBoolean("Is Acquire Slot Occupied", !m_cellStorageInput.get());
         SmartDashboard.putBoolean("Is Robot Empty", m_ballArray.isEmpty());
     }
 
@@ -88,7 +126,7 @@ public class StorageSubsystem extends SubsystemBase {
      * @return if the the acquierer slot is occupied
      */
     public boolean isAcquireBallOccupied() {
-        return !m_inputAcquireBallChecker.get();
+        return !m_cellStorageInput.get();
     }
 
     /**
@@ -132,21 +170,30 @@ public class StorageSubsystem extends SubsystemBase {
     }
 
     /**
-     * Indexs the array to the next element If the new index is the length (out of
-     * bounds), set it back to 0
+     * Gets the storage position digital input object
+     * 
+     * @return the storage position digital input object
      */
-    public void resetHasBeenTripped() {
-        m_hasBeenTripped = false;
+    public CT_DigitalInput getDrumStoragePositionInput() {
+        return m_drumStoragePositionInput;
     }
 
     /**
-     * Returns the opposite value of the getter for the sensor as for example if the
-     * getter returns true that means the sensor is not blocked.
+     * Gets the shooter position digital input object
      * 
-     * @return If the acquire flag was tripped
+     * @return the shooter position digital input object
      */
-    public boolean isAcquirePositionTripped() {
-        return !m_inputAcquirePositionChecker.get();
+    public CT_DigitalInput getDrumShooterPositionInput() {
+        return m_drumShooterPositionInput;
+    }
+
+    /**
+     * Gets the cell input onject
+     * 
+     * @return the cell input object
+     */
+    public CT_DigitalInput getCellInput() {
+        return m_cellStorageInput;
     }
 
     /**
