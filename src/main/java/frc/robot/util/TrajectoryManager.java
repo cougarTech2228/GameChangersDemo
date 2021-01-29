@@ -20,7 +20,9 @@ public class TrajectoryManager implements Runnable {
     private TrajectoryConfig m_config;
 
     private Trajectory m_basicTrajectory;
-    private Trajectory m_barrelRunTrajectory;
+    private Trajectory m_barrelRacingTrajectory;
+    private Trajectory m_slalomTrajectory;
+    private Trajectory m_bounceTrajectory;
 
     public TrajectoryManager() {
 
@@ -57,13 +59,30 @@ public class TrajectoryManager implements Runnable {
         
         RobotContainer.setBasicTrajectoryCommand(new TrajectoryCommand(m_basicTrajectory, RobotContainer.getDrivebaseSubsystem()));
 
-        // Trajectory is read from Pathweaver .json file; place file in src/main/deploy before building
+        // Trajectories are read from Pathweaver .json file; place file in src/main/deploy before building
         try {
-            m_barrelRunTrajectory = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/BarrelRacing.wpilib.json"));
-            RobotContainer.setBarrelRacingTrajectoryCommand(new TrajectoryCommand(m_barrelRunTrajectory, RobotContainer.getDrivebaseSubsystem()));
+            m_barrelRacingTrajectory = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/BarrelRacing.wpilib.json"));
+            RobotContainer.setBarrelRacingTrajectoryCommand(new TrajectoryCommand(m_barrelRacingTrajectory, RobotContainer.getDrivebaseSubsystem()));
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+/*
+        try {
+            m_slalomTrajectory = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/Slalom.wpilib.json"));
+            RobotContainer.setSlalomTrajectoryCommand(new TrajectoryCommand(m_slalomTrajectory, RobotContainer.getDrivebaseSubsystem()));
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        try {
+            m_bounceTrajectory = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/Bounce.wpilib.json"));
+            RobotContainer.setBounceTrajectoryCommand(new TrajectoryCommand(m_bounceTrajectory, RobotContainer.getDrivebaseSubsystem()));
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        */
     }
 }

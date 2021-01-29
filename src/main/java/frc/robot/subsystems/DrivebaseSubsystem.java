@@ -220,8 +220,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	@Override
 	public void periodic() {
 		if (RobotState.isAutonomous()) {
-			//System.out.println("LeftMasterEncoderValue: " + m_leftMaster.getSelectedSensorPosition(Constants.PID_PRIMARY));
-			//System.out.println("RightMasterEncoderValue: " + m_rightMaster.getSelectedSensorPosition(Constants.PID_PRIMARY));
+			System.out.println("LeftMasterEncoderValue: " + m_leftMaster.getSelectedSensorPosition(Constants.PID_PRIMARY));
+			System.out.println("RightMasterEncoderValue: " + m_rightMaster.getSelectedSensorPosition(Constants.PID_PRIMARY));
 
 			m_savedPose = m_odometry.update(m_gyro.getHeading(), 
 			m_leftMaster.getSelectedSensorPosition(Constants.PID_PRIMARY) * m_kEdgesToMetersAdjustment, 

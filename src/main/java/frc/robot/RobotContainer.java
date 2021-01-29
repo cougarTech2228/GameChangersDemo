@@ -53,6 +53,8 @@ public class RobotContainer {
 
   private static TrajectoryCommand m_basicTrajectoryCommand;
   private static TrajectoryCommand m_barrelRacingTrajectoryCommand;
+  private static TrajectoryCommand m_slalomTrajectoryCommand;
+  private static TrajectoryCommand m_bounceTrajectoryCommand;
 
 
   /**
@@ -190,8 +192,11 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    // TODO need to add this to an 'autochooser' from Smart Dashboard
     return m_basicTrajectoryCommand;
     //return m_barrelRacingTrajectoryCommand;
+    //return m_slalomTrajectoryCommand;
+    //return m_bounceTrajectoryCommand;
   }
 
   // Utilization Commands
@@ -272,4 +277,13 @@ public class RobotContainer {
   public static void setBarrelRacingTrajectoryCommand(TrajectoryCommand command) {
     m_barrelRacingTrajectoryCommand = command;
   }
+  
+  public static void setSlalomTrajectoryCommand(TrajectoryCommand command) {
+    m_slalomTrajectoryCommand = command;
+  }
+
+  public static void setBounceTrajectoryCommand(TrajectoryCommand command) {
+    m_bounceTrajectoryCommand = command;
+  }
+
 }
