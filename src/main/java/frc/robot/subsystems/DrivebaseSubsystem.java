@@ -35,7 +35,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	// The mag encoders are on the wheel-side so we don't need to multiply the EPR by the gear ratio here.
 	private static final double m_kEdgesPerRotation = 2048 * m_kGearRatio;
 
-	private static final double m_kWheelDiameterInInches = 7.5;
+	private static final double m_kWheelDiameterInInches = 7.20;
 	private static final double m_kWheelCircumferenceInMeters = Units.inchesToMeters(m_kWheelDiameterInInches) * Math.PI;
 
     private static final double m_kEdgesToMetersAdjustment = (m_kWheelCircumferenceInMeters / m_kEdgesPerRotation);
@@ -66,8 +66,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private static final SimpleMotorFeedforward m_feedForward = new SimpleMotorFeedforward(m_kS, m_kV, m_kA);
 	
-	private static final double m_kMaxSpeedMetersPerSecond = 0.2;
-	private static final double m_kMaxAccelerationMetersPerSecondSquared = 0.2;
+	private static final double m_kMaxSpeedMetersPerSecond = 0.8;
+	private static final double m_kMaxAccelerationMetersPerSecondSquared = 0.8;
 	private static final double m_kDifferentialDriveConstraintMaxVoltage = 12.0;
 
 	private WPI_TalonFX m_rightMaster = new WPI_TalonFX(Constants.RIGHT_FRONT_MOTOR_CAN_ID);
@@ -94,6 +94,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		// You need to register the subsystem to get it's periodic
 		// method to be called by the Scheduler
 		register();
+
+		m_leftMaster.configFactoryDefault();
+		m_rightMaster.configFactoryDefault();
+		m_leftFollower.configFactoryDefault();
+		m_rightFollower.configFactoryDefault();
 
 		// Set Neutral Mode 
 		m_leftMaster.setNeutralMode(NeutralMode.Brake);
@@ -172,9 +177,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	 */
 	private void enableEncoders() {
 		m_encodersAreAvailable = 
-		((m_leftMaster.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 
+		((m_leftMaster.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 
 		Constants.PID_PRIMARY, m_kDrivebaseTimeoutMs) == ErrorCode.OK) &&
-		  (m_rightMaster.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 
+		  (m_rightMaster.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 
 		  Constants.PID_PRIMARY, m_kDrivebaseTimeoutMs) == ErrorCode.OK));
 
 		if (!m_encodersAreAvailable) {
@@ -220,12 +225,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	@Override
 	public void periodic() {
 		if (RobotState.isAutonomous()) {
-			System.out.println("LeftMasterEncoderValue: " + m_leftMaster.getSelectedSensorPosition(Constants.PID_PRIMARY));
-			System.out.println("RightMasterEncoderValue: " + m_rightMaster.getSelectedSensorPosition(Constants.PID_PRIMARY));
+			//System.out.println("LeftMasterEncoderValue: " + -m_leftMaster.getSelectedSensorPosition(Constants.PID_PRIMARY));
+			//System.out.println("RightMasterEncoderValue: " + -m_rightMaster.getSelectedSensorPosition(Constants.PID_PRIMARY));
 
 			m_savedPose = m_odometry.update(m_gyro.getHeading(), 
-			m_leftMaster.getSelectedSensorPosition(Constants.PID_PRIMARY) * m_kEdgesToMetersAdjustment, 
-			m_rightMaster.getSelectedSensorPosition(Constants.PID_PRIMARY) * m_kEdgesToMetersAdjustment);
+			-m_leftMaster.getSelectedSensorPosition(Constants.PID_PRIMARY) * m_kEdgesToMetersAdjustment, 
+			-m_rightMaster.getSelectedSensorPosition(Constants.PID_PRIMARY) * m_kEdgesToMetersAdjustment);
 		}
 		else {
 			arcadeDrive();
@@ -251,8 +256,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public DifferentialDriveWheelSpeeds getSpeeds() {
 	   return new DifferentialDriveWheelSpeeds(
-		 m_leftMaster.getSelectedSensorVelocity(Constants.PID_PRIMARY) * 10.0 * m_kEdgesToMetersAdjustment,
-		 m_rightMaster.getSelectedSensorVelocity(Constants.PID_PRIMARY) * 10.0 * m_kEdgesToMetersAdjustment
+		 -m_leftMaster.getSelectedSensorVelocity(Constants.PID_PRIMARY) * 10.0 * m_kEdgesToMetersAdjustment,
+		 -m_rightMaster.getSelectedSensorVelocity(Constants.PID_PRIMARY) * 10.0 * m_kEdgesToMetersAdjustment
 		 );
     }
 
@@ -310,6 +315,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		m_rightMaster.setNeutralMode(NeutralMode.Coast);
 		m_leftFollower.setNeutralMode(NeutralMode.Coast);
 		m_rightFollower.setNeutralMode(NeutralMode.Coast);
+	}
+
+	public void setBrakeMode() {
+		m_leftMaster.setNeutralMode(NeutralMode.Brake);
+		m_rightMaster.setNeutralMode(NeutralMode.Brake);
+		m_leftFollower.setNeutralMode(NeutralMode.Brake);
+		m_rightFollower.setNeutralMode(NeutralMode.Brake);
 	}
 
 	public void resetOdometry() {
