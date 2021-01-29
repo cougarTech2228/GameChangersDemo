@@ -3,8 +3,6 @@ package frc.robot.motors;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
-import edu.wpi.first.wpilibj.RobotBase;
-
 import java.util.HashMap;
 
 import com.ctre.phoenix.ErrorCode;
@@ -13,30 +11,19 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 
-public class ShooterMotor {//extends TalonSRXMotor {
+public class ShooterMotor {
 
     private HashMap<Integer, Double> m_shooterMap;
     private boolean m_encodersAreAvailable;
     private WPI_TalonSRX m_talon;
 
-    private double m_shooterSpeed = 105000;
-
     public ShooterMotor() {
-        //super(Constants.SHOOTER_CAN_ID);
         
         m_talon = new WPI_TalonSRX(Constants.SHOOTER_CAN_ID);
 
         m_shooterMap = new HashMap<Integer, Double>();
 
-        // shooterMap.put(Constants.MIN_SHOOTING_DISTANCE, 100000); // distance (in),
-        // Velocity
-        // m_shooterMap.put(80, 10500);
-        // m_shooterMap.put(97, 87500);
-        // m_shooterMap.put(122, 75000);
-        // m_shooterMap.put(227, 77000);
-        // m_shooterMap.put(304, 82000);
-
-        
+        // Distance (in), Velocity        
         m_shooterMap.put(80, 110512.0);
         m_shooterMap.put(81, 106598.0);
         m_shooterMap.put(83, 100577.0);
@@ -73,10 +60,10 @@ public class ShooterMotor {//extends TalonSRXMotor {
         m_shooterMap.put(350, 88302.9);
         m_shooterMap.put(360, 88981.8);
         
-
-
         m_talon.configFactoryDefault();
+
         m_encodersAreAvailable =  m_talon.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, Constants.PID_PRIMARY, Constants.kTimeoutMs) == ErrorCode.OK;
+        
         m_talon.config_kP(0, 0.01764, Constants.kTimeoutMs); //.0465
         m_talon.config_kI(0, 0, Constants.kTimeoutMs);
         m_talon.config_kD(0, 0, Constants.kTimeoutMs);
@@ -133,7 +120,6 @@ public class ShooterMotor {//extends TalonSRXMotor {
         } else {
             m_talon.set(ControlMode.Velocity, manualVelocity);
         }
-
     }
 
     public void stop() {
@@ -165,5 +151,4 @@ public class ShooterMotor {//extends TalonSRXMotor {
         }
         return currentClosest;
     }
-
 }

@@ -1,15 +1,10 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.StorageSubsystem;
-import frc.robot.Constants;
-import frc.robot.OI;
 import frc.robot.Toolkit.CT_DigitalInput;
-import frc.robot.subsystems.ShooterSubsystem;
 
 /**
  * IndexCommand

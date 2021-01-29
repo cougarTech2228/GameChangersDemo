@@ -2,11 +2,9 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.SelectCommand;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.StorageSubsystem;
-import java.util.Map;
 
 /**
  * TryToShootCommand
@@ -38,7 +36,7 @@ public class TryToShootCommand extends SequentialCommandGroup {
             new PrintCommand("TryToShootOnce")
             .andThen(() -> {
                 double curSpeed = shooterSubsystem.getShooterMotor().getSpeed();
-                int curDistance = (int)RobotContainer.getVisionSubsystem().getLidarAverage();
+                int curDistance = (int)RobotContainer.getLidarSubsystem().getLidarAverage();
                 double newSpeed = shooterSubsystem.getShooterMotor().closestDistance(curDistance);
                 if(curSpeed > 0 && Math.abs(newSpeed - curSpeed) > 10000) {
                     shooterSubsystem.getShooterMotor().start(curDistance);

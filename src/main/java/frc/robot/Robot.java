@@ -55,6 +55,13 @@ public class Robot extends TimedRobot {
 	@Override
 	public void disabledInit() {
 		CommandScheduler.getInstance().cancelAll();
+
+		// Wheels are stuck in brake mode and it makes it hard to move the robot
+		RobotContainer.getDrivebaseSubsystem().setCoastMode();
+
+		// Can't run Auto routines back-to-back w/o redeploying unless we do these
+		RobotContainer.getDrivebaseSubsystem().resetOdometry();
+		RobotContainer.getDrivebaseSubsystem().resetHeading();
 	}
 
 	@Override
@@ -67,7 +74,6 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		RobotContainer.getDrivebaseSubsystem().setAutonomous(true);
 
 		m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -86,10 +92,6 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
-		//DriverMappings.apply();
-		RobotContainer.getDrivebaseSubsystem().setAutonomous(false);
-		//RobotContainer.getDrivebaseSubsystem().getRamseteController().setEnabled(false);
-
 		// This makes sure that the autonomous stops running when
 		// teleop starts running. If you want the autonomous to
 		// continue until interrupted by another command, remove

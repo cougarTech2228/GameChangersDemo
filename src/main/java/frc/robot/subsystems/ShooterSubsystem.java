@@ -14,17 +14,17 @@ public class ShooterSubsystem extends SubsystemBase {
     private ShooterMotor m_shooterMotor;
     private CT_DigitalInput m_cellInput;
     private Solenoid m_bopper;
-    private VisionSubsystem m_visionSubsystem;
+    private LidarSubsystem m_lidarSubsystem;
     private AcquisitionSubsystem m_acquisitionSubsystem;
     private StorageSubsystem m_storageSubsystem;
     private boolean m_isShooting;
     private boolean m_isRunningShooterMotor;
 
-    public ShooterSubsystem(StorageSubsystem storageSubsystem, VisionSubsystem visionSubsystem,
+    public ShooterSubsystem(StorageSubsystem storageSubsystem, LidarSubsystem lidarSubsystem,
             AcquisitionSubsystem acquisitionSubsystem) {
         register();
 
-        m_visionSubsystem = visionSubsystem;
+        m_lidarSubsystem = lidarSubsystem;
         m_acquisitionSubsystem = acquisitionSubsystem;
         m_storageSubsystem = storageSubsystem;
 
@@ -97,7 +97,7 @@ public class ShooterSubsystem extends SubsystemBase {
             m_acquisitionSubsystem.stopAcquirerMotor();
             m_acquisitionSubsystem.deployAcquirer();
             m_isRunningShooterMotor = true;
-            m_shooterMotor.start((int) m_visionSubsystem.getLidarAverage());
+            m_shooterMotor.start((int) m_lidarSubsystem.getLidarAverage());
         } else {
             System.out.println("Robot is running to fast to start shooter motor");
         }

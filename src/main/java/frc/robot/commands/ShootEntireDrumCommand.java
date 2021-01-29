@@ -19,8 +19,7 @@ public class ShootEntireDrumCommand extends SequentialCommandGroup {
     public ShootEntireDrumCommand(ShooterSubsystem shooterSubsystem, StorageSubsystem storageSubsystem) {
         addCommands(
             new PrintCommand("Shoot entire drum")
-            .andThen(() -> RobotContainer.getDrivebaseSubsystem().setShouldHalfSpeed(true)),
-            RobotContainer.getIndexDrumCommand(storageSubsystem.getDrumShooterPositionInput(), false),
+            .andThen(() -> RobotContainer.getIndexDrumCommand(storageSubsystem.getDrumShooterPositionInput(), false)),
             new WaitCommand(0.5),
             RobotContainer.getTryToShootCommand(),
             new WaitCommand(Constants.TIME_BETWEEN_SHOTS),
@@ -33,7 +32,6 @@ public class ShootEntireDrumCommand extends SequentialCommandGroup {
             RobotContainer.getTryToShootCommand()
             .andThen(() -> {
                 shooterSubsystem.setIsShooting(false);
-                RobotContainer.getDrivebaseSubsystem().setShouldHalfSpeed(false);
             })
         );
         // Use addRequirements() here to declare subsystem dependencies.

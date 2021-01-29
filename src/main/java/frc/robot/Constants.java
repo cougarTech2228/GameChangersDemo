@@ -7,9 +7,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
-import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
-import edu.wpi.first.wpilibj.util.Units;
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean constants. This class should not be used for any other
@@ -127,49 +124,6 @@ public final class Constants {
 	public static final double ELEVATOR_DEPLOY_SPEED_LOWER = 0.5;
 
 	/**
-	 * Number of joystick buttons to poll. 10 means buttons[1,9] are polled, which
-	 * is actually 9 buttons.
-	 */
-	public final static int kNumButtonsPlusOne = 10;
-
-	/**
-	 * How many sensor units per rotation. Using CTRE Magnetic Encoder.
-	 * 
-	 * @link https://github.com/CrossTheRoadElec/Phoenix-Documentation#what-are-the-units-of-my-sensor
-	 */
-	public final static double kEncoderUnitsPerRevolution = 379.16;
-	public final static double kWheelDiameterIN = 6.25;
-	public final static double kMaxFTPerSecond = 12;
-	public final static double kMaxUnitsPer_100ms = 8735.8; // kEncoderUnitsPerRevolution / kWheelDiameterIN / Math.PI *
-															// 12 * kMaxFTPerSecond / 10;
-
-	public final static int kSensorUnitsPerRotation = 4096;
-
-	/**
-	 * Using the configSelectedFeedbackCoefficient() function, scale units to 3600
-	 * per rotation. This is nice as it keeps 0.1 degrees of resolution, and is
-	 * fairly intuitive.
-	 */
-	public final static double kTurnTravelUnitsPerRotation = 3600;
-
-	/**
-	 * Empirically measure what the difference between encoders per 360' Drive the
-	 * robot in clockwise rotations and measure the units per rotation. Drive the
-	 * robot in counter clockwise rotations and measure the units per rotation. Take
-	 * the average of the two.
-	 */
-	public final static int kEncoderUnitsPerRotation = 51711;
-	/**
-	 * Number of rotations to drive when performing Distance Closed Loop
-	 */
-	public final static double kRotationsToTravel = 6;
-
-	/**
-	 * This is a property of the Pigeon IMU, and should not be changed.
-	 */
-	public final static int kPigeonUnitsPerRotation = 8192;
-
-	/**
 	 * Set to zero to skip waiting for confirmation. Set to nonzero to wait and
 	 * report to DS if action fails.
 	 */
@@ -206,42 +160,5 @@ public final class Constants {
 	public final static int kSlot_Velocit = SLOT_2;
 	public final static int kSlot_MotProf = SLOT_3;
 
-    // Stuff needed for Auto Ramsete-based Trajectories
-
-	// Need to set this to TRUE for Ramsete Commands but it
-	// seems to give the negated value not the correct ones
-	// when we're trying to manually create autonomous paths
-	public final static boolean kGyroReversed = true;
-
-	public static final int EDGES_PER_ROTATION = 512;
-	public static final double WHEEL_DIAMETER_INCHES = 8.0; // TODO 4 on Pizza Box, change to 8 on Xi
-    public static final double WHEEL_CIRCUMFERENCE_INCHES = WHEEL_DIAMETER_INCHES * Math.PI;
-    public static final double WHEEL_CIRCUMFERENCE_METERS = Units.inchesToMeters(WHEEL_DIAMETER_INCHES) * Math.PI;
-
-    public static final double TRACK_WIDTH_METERS = .590; //0.647;
-    public static final DifferentialDriveKinematics DRIVE_KINEMATICS = new DifferentialDriveKinematics(
-			TRACK_WIDTH_METERS);
-
-	// Baseline values for a RAMSETE follower in units of meters and seconds
-	public static final double RAMSETE_B = 2;
-	public static final double RAMSETE_ZETA = 0.7;
-
-	// Voltage needed to overcome the motors static friction. kS 
-	public static final double kS = 0.923; //PB value = 1.55;
-
-	// Voltage needed to hold (or "cruise") at a given constant velocity. kV
-	public static final double kV = 1.42; //PB value = 2.73; 
-
-	// Voltage needed to induce a given acceleration in the motor shaft. kA 
-	public static final double kA = 0.414; //PB value = 0.184;
-
-	public static final SimpleMotorFeedforward FEED_FORWARD = new SimpleMotorFeedforward(kS, kV, kA);
-	
-	public static final double kMaxSpeedMetersPerSecond = 1.5;
-	public static final double kMaxAccelerationMetersPerSecondSquared = 1.0;
-
-	public static final double DIFFERENTIAL_DRIVE_CONSTRAINT_MAX_VOLTAGE = 10.0;
-
 	public static final double ACQUIRER_MOTOR_SPEED = 0.70;
-
 }

@@ -92,7 +92,8 @@ public class CT_Gyro {
      * @return the robot's heading in degrees, from -180 to 180
      */
     public Rotation2d getHeading() {
-        return Rotation2d.fromDegrees(Math.IEEEremainder(getYaw(), 360.0d));
+        //System.out.println("Heading: " + Rotation2d.fromDegrees(getYaw()));
+        return Rotation2d.fromDegrees(getYaw());
     }
 
 }
