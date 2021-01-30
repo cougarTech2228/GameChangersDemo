@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import frc.robot.Constants;
 import frc.robot.OI;
+import frc.robot.RobotContainer;
 import frc.robot.Toolkit.CT_Gyro;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -66,8 +67,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private static final SimpleMotorFeedforward m_feedForward = new SimpleMotorFeedforward(m_kS, m_kV, m_kA);
 	
-	private static final double m_kMaxSpeedMetersPerSecond = 2;
-	private static final double m_kMaxAccelerationMetersPerSecondSquared = 2;
+	private static final double m_kMaxSpeedMetersPerSecond = 2.5;
+	private static final double m_kMaxAccelerationMetersPerSecondSquared = 2.2;
 	private static final double m_kDifferentialDriveConstraintMaxVoltage = 10.0;
 
 	private WPI_TalonFX m_rightMaster = new WPI_TalonFX(Constants.RIGHT_FRONT_MOTOR_CAN_ID);
@@ -89,7 +90,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private PIDController m_leftPIDController = new PIDController(m_pValue, 0, 0);
 	private PIDController m_rightPIDController = new PIDController(m_pValue, 0, 0);
 
-	private Pose2d m_intitialPose = new Pose2d();
+	private Pose2d m_initialPose = new Pose2d();
 
 	public DrivebaseSubsystem() {
 
@@ -338,6 +339,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	}
 
 	public void setInitialPose(Pose2d pose){
-		m_intitialPose = pose;
+		m_initialPose = pose;
 	}
 }

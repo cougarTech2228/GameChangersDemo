@@ -19,6 +19,8 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.RobotContainer;
@@ -72,9 +74,12 @@ public class TrajectoryManager implements Runnable {
 
         // Trajectories are read from Pathweaver .json file; place file in src/main/deploy before building
         try {
-            m_barrelRacingTrajectory = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/BarrelRacing.wpilib.json"));
-            RobotContainer.setBarrelRacingTrajectoryCommand(new TrajectoryCommand(m_barrelRacingTrajectory, RobotContainer.getDrivebaseSubsystem()));
-            RobotContainer.getDrivebaseSubsystem().resetOdometry(m_barrelRacingTrajectory.getInitialPose());
+            m_barrelRacingTrajectory = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/BarrelRacing5.wpilib.json"));
+            CommandBase cmd = new TrajectoryCommand(m_barrelRacingTrajectory, RobotContainer.getDrivebaseSubsystem()).beforeStarting(() -> {
+                RobotContainer.getDrivebaseSubsystem().resetOdometry(m_barrelRacingTrajectory.getInitialPose());
+            });
+            RobotContainer.setBarrelRacingTrajectoryCommand(cmd);
+            // RobotContainer.getDrivebaseSubsystem().resetOdometry(m_barrelRacingTrajectory.getInitialPose());
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -83,7 +88,11 @@ public class TrajectoryManager implements Runnable {
         try {
             m_slalomTrajectory = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/Slalom.wpilib.json"));
             RobotContainer.setSlalomTrajectoryCommand(new TrajectoryCommand(m_slalomTrajectory, RobotContainer.getDrivebaseSubsystem()));
-            RobotContainer.getDrivebaseSubsystem().resetOdometry(m_slalomTrajectory.getInitialPose());
+            CommandBase cmd = new TrajectoryCommand(m_slalomTrajectory, RobotContainer.getDrivebaseSubsystem()).beforeStarting(() -> {
+                RobotContainer.getDrivebaseSubsystem().resetOdometry(m_slalomTrajectory.getInitialPose());
+            });
+            RobotContainer.setSlalomTrajectoryCommand(cmd);
+            //RobotContainer.getDrivebaseSubsystem().resetOdometry(m_slalomTrajectory.getInitialPose());
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
