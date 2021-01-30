@@ -66,8 +66,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private static final SimpleMotorFeedforward m_feedForward = new SimpleMotorFeedforward(m_kS, m_kV, m_kA);
 	
-	private static final double m_kMaxSpeedMetersPerSecond = 0.4;
-	private static final double m_kMaxAccelerationMetersPerSecondSquared = 0.4;
+	private static final double m_kMaxSpeedMetersPerSecond = 2;
+	private static final double m_kMaxAccelerationMetersPerSecondSquared = 2;
 	private static final double m_kDifferentialDriveConstraintMaxVoltage = 10.0;
 
 	private WPI_TalonFX m_rightMaster = new WPI_TalonFX(Constants.RIGHT_FRONT_MOTOR_CAN_ID);
@@ -88,6 +88,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private PIDController m_leftPIDController = new PIDController(m_pValue, 0, 0);
 	private PIDController m_rightPIDController = new PIDController(m_pValue, 0, 0);
+
+	private Pose2d m_intitialPose = new Pose2d();
 
 	public DrivebaseSubsystem() {
 
@@ -164,7 +166,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	}
 
 	/* Zero all sensors used */
-	private void zeroSensors() {
+	public void zeroSensors() {
 		m_leftMaster.setSelectedSensorPosition(0, Constants.PID_PRIMARY, m_kDrivebaseTimeoutMs);
 		m_rightMaster.setSelectedSensorPosition(0, Constants.PID_PRIMARY, m_kDrivebaseTimeoutMs);
 		System.out.println("All sensors are zeroed.\n");
@@ -221,6 +223,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public double getCurrentMoveSpeedAverage() {
 		return (m_leftMaster.get() + m_rightMaster.get()) / 2;
 	}
+
 
 	@Override
 	public void periodic() {
@@ -326,10 +329,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public void resetOdometry(Pose2d pose) {
 		zeroSensors();
+		resetHeading();
 		m_odometry.resetPosition(pose, m_gyro.getHeading());
 	}
 
 	public void resetHeading() {
 		m_gyro.resetYaw();
+	}
+
+	public void setInitialPose(Pose2d pose){
+		m_intitialPose = pose;
 	}
 }

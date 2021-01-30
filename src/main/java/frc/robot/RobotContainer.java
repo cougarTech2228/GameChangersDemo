@@ -13,9 +13,11 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
@@ -52,10 +54,10 @@ public class RobotContainer {
   private final static SendableChooser<Double> m_manualVelocityChooser = new SendableChooser<>();
   private final static SendableChooser<Command> m_autoChooser = new SendableChooser<>();
 
-  private static TrajectoryCommand m_basicTrajectoryCommand;
-  private static TrajectoryCommand m_barrelRacingTrajectoryCommand;
-  private static TrajectoryCommand m_slalomTrajectoryCommand;
-  private static TrajectoryCommand m_bounceTrajectoryCommand;
+  private static Command m_basicTrajectoryCommand;
+  private static Command m_barrelRacingTrajectoryCommand;
+  private static Command m_slalomTrajectoryCommand;
+  private static Command m_bounceTrajectoryCommand;
 
 
   /**
@@ -277,20 +279,20 @@ public class RobotContainer {
     return m_lidarSubsystem;
   }
 
-  public static void setBasicTrajectoryCommand(TrajectoryCommand command) {
+  public static void setBasicTrajectoryCommand(CommandBase command) {
     m_basicTrajectoryCommand = command;
   }
 
-  public static void setBarrelRacingTrajectoryCommand(TrajectoryCommand command) {
-    m_barrelRacingTrajectoryCommand = (TrajectoryCommand) command.withName("Barrel Racing");
+  public static void setBarrelRacingTrajectoryCommand(CommandBase command) {
+    m_barrelRacingTrajectoryCommand =  command.withName("Barrel Racing");
   }
   
-  public static void setSlalomTrajectoryCommand(TrajectoryCommand command) {
-    m_slalomTrajectoryCommand = (TrajectoryCommand) command.withName("Slalom");
+  public static void setSlalomTrajectoryCommand(CommandBase command) {
+    m_slalomTrajectoryCommand = command.withName("Slalom");
   }
 
-  public static void setBounceTrajectoryCommand(TrajectoryCommand command) {
-    m_bounceTrajectoryCommand = (TrajectoryCommand) command.withName("Bounce");
+  public static void setBounceTrajectoryCommand(CommandBase command) {
+    m_bounceTrajectoryCommand = command.withName("Bounce");
   }
 
 }
