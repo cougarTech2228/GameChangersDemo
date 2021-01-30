@@ -66,9 +66,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private static final SimpleMotorFeedforward m_feedForward = new SimpleMotorFeedforward(m_kS, m_kV, m_kA);
 	
-	private static final double m_kMaxSpeedMetersPerSecond = 0.8;
-	private static final double m_kMaxAccelerationMetersPerSecondSquared = 0.8;
-	private static final double m_kDifferentialDriveConstraintMaxVoltage = 12.0;
+	private static final double m_kMaxSpeedMetersPerSecond = 0.4;
+	private static final double m_kMaxAccelerationMetersPerSecondSquared = 0.4;
+	private static final double m_kDifferentialDriveConstraintMaxVoltage = 10.0;
 
 	private WPI_TalonFX m_rightMaster = new WPI_TalonFX(Constants.RIGHT_FRONT_MOTOR_CAN_ID);
 	private WPI_TalonFX m_rightFollower = new WPI_TalonFX(Constants.RIGHT_REAR_MOTOR_CAN_ID);
@@ -160,7 +160,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		m_gyro.resetYaw();
 
 		m_odometry = new DifferentialDriveOdometry(m_gyro.getHeading());
-		resetOdometry();
+		resetOdometry(new Pose2d());
 	}
 
 	/* Zero all sensors used */
@@ -324,9 +324,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		m_rightFollower.setNeutralMode(NeutralMode.Brake);
 	}
 
-	public void resetOdometry() {
+	public void resetOdometry(Pose2d pose) {
 		zeroSensors();
-		m_odometry.resetPosition(new Pose2d(0, 0, Rotation2d.fromDegrees(0)), m_gyro.getHeading());
+		m_odometry.resetPosition(pose, m_gyro.getHeading());
 	}
 
 	public void resetHeading() {

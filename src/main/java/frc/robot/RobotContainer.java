@@ -50,6 +50,7 @@ public class RobotContainer {
   private final static ShooterSubsystem m_shooterSubsystem = null;//new ShooterSubsystem(m_storageSubsystem, m_lidarSubsystem, m_acquisitionSubsystem);
 
   private final static SendableChooser<Double> m_manualVelocityChooser = new SendableChooser<>();
+  private final static SendableChooser<Command> m_autoChooser = new SendableChooser<>();
 
   private static TrajectoryCommand m_basicTrajectoryCommand;
   private static TrajectoryCommand m_barrelRacingTrajectoryCommand;
@@ -62,7 +63,7 @@ public class RobotContainer {
    */
   public RobotContainer() {
 
-    //DriverStation.getInstance().silenceJoystickConnectionWarning(true);
+    DriverStation.getInstance().silenceJoystickConnectionWarning(true);
     
     // The import of trajectories from PathWeaver-generated json files can be very
     // time consuming so we're putting the Trajectory Manager into a thread.
@@ -85,6 +86,8 @@ public class RobotContainer {
     m_manualVelocityChooser.addOption("Trench", 77000.0);
     m_manualVelocityChooser.addOption("Control Panel", 85000.0);
     m_manualVelocityChooser.addOption("Diagnostic Velocity", 30000.0);
+
+    
     /*
      * // Command Buttons SmartDashboard.putData("Cancel all commands", new
      * InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
@@ -140,14 +143,14 @@ public class RobotContainer {
 
     // --------------------------------------Acquirer
     // Buttons-----------------------------------------------------
-    /*
-     * rightTrigger.whenPressed(() -> m_acquisitionSubsystem.startAcquirerMotor());
-     * rightTrigger.whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
-     * 
-     * leftTrigger.whenPressed(() ->
-     * m_acquisitionSubsystem.startAcquirerMotorReverse());
-     * leftTrigger.whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
-     * 
+    
+
+     //rightTrigger.whenPressed(() -> m_acquisitionSubsystem.startAcquirerMotor());
+      //rightTrigger.whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
+      
+      //leftTrigger.whenPressed(() -> m_acquisitionSubsystem.startAcquirerMotorReverse());
+      //leftTrigger.whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
+     /* 
      * new CT_CommandToggler( // Acquirer Motor Toggle - Right Bumper new
      * InstantCommand(m_acquisitionSubsystem::deployAcquirer), new
      * InstantCommand(m_acquisitionSubsystem::retractAcquirer) )
@@ -180,6 +183,13 @@ public class RobotContainer {
     xButton.whenPressed(new PrintCommand("X Button Pressed"));
   }
 
+  public static void configureAutoChooser() {
+    SmartDashboard.putData("Auto Chooser", m_autoChooser);
+    m_autoChooser.setDefaultOption("Barrel Race", m_barrelRacingTrajectoryCommand);
+    m_autoChooser.addOption("Slalom", m_slalomTrajectoryCommand);
+    m_autoChooser.addOption("Bounce", m_bounceTrajectoryCommand);
+  }
+
   public static OI getOI() {
     return m_oi;
   }
@@ -192,11 +202,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // TODO need to add this to an 'autochooser' from Smart Dashboard
-    return m_basicTrajectoryCommand;
-    //return m_barrelRacingTrajectoryCommand;
-    //return m_slalomTrajectoryCommand;
-    //return m_bounceTrajectoryCommand;
+    System.out.println("Auto: " + m_autoChooser.getSelected().getName());
+    return m_autoChooser.getSelected();
   }
 
   // Utilization Commands
@@ -275,15 +282,15 @@ public class RobotContainer {
   }
 
   public static void setBarrelRacingTrajectoryCommand(TrajectoryCommand command) {
-    m_barrelRacingTrajectoryCommand = command;
+    m_barrelRacingTrajectoryCommand = (TrajectoryCommand) command.withName("Barrel Racing");
   }
   
   public static void setSlalomTrajectoryCommand(TrajectoryCommand command) {
-    m_slalomTrajectoryCommand = command;
+    m_slalomTrajectoryCommand = (TrajectoryCommand) command.withName("Slalom");
   }
 
   public static void setBounceTrajectoryCommand(TrajectoryCommand command) {
-    m_bounceTrajectoryCommand = command;
+    m_bounceTrajectoryCommand = (TrajectoryCommand) command.withName("Bounce");
   }
 
 }

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
@@ -12,6 +14,7 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.RobotContainer;
 import frc.robot.commands.TrajectoryCommand;
 
@@ -47,6 +50,8 @@ public class TrajectoryManager implements Runnable {
 
     @Override
     public void run() {
+
+        long startTimeStamp = System.currentTimeMillis();
         
         // m_basicTrajectory = TrajectoryGenerator.generateTrajectory(Arrays.asList(new Pose2d(), new Pose2d(2.0, 0, new Rotation2d())),
         // m_config);
@@ -63,14 +68,16 @@ public class TrajectoryManager implements Runnable {
         try {
             m_barrelRacingTrajectory = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/BarrelRacing.wpilib.json"));
             RobotContainer.setBarrelRacingTrajectoryCommand(new TrajectoryCommand(m_barrelRacingTrajectory, RobotContainer.getDrivebaseSubsystem()));
+            RobotContainer.getDrivebaseSubsystem().resetOdometry(m_barrelRacingTrajectory.getInitialPose());
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-/*
+
         try {
             m_slalomTrajectory = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/Slalom.wpilib.json"));
             RobotContainer.setSlalomTrajectoryCommand(new TrajectoryCommand(m_slalomTrajectory, RobotContainer.getDrivebaseSubsystem()));
+            RobotContainer.getDrivebaseSubsystem().resetOdometry(m_slalomTrajectory.getInitialPose());
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -79,10 +86,14 @@ public class TrajectoryManager implements Runnable {
         try {
             m_bounceTrajectory = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/Bounce.wpilib.json"));
             RobotContainer.setBounceTrajectoryCommand(new TrajectoryCommand(m_bounceTrajectory, RobotContainer.getDrivebaseSubsystem()));
+            RobotContainer.getDrivebaseSubsystem().resetOdometry(m_bounceTrajectory.getInitialPose());
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        */
+
+        System.out.println("Auto paths created");
+        RobotContainer.configureAutoChooser();
+        
     }
 }

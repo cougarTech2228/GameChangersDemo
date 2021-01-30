@@ -8,6 +8,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -60,7 +61,7 @@ public class Robot extends TimedRobot {
 		RobotContainer.getDrivebaseSubsystem().setCoastMode();
 
 		// Can't run Auto routines back-to-back w/o redeploying unless we do these
-		RobotContainer.getDrivebaseSubsystem().resetOdometry();
+		RobotContainer.getDrivebaseSubsystem().resetOdometry(new Pose2d());
 		RobotContainer.getDrivebaseSubsystem().resetHeading();
 	}
 
@@ -76,10 +77,11 @@ public class Robot extends TimedRobot {
 	public void autonomousInit() {
 
 		RobotContainer.getDrivebaseSubsystem().setBrakeMode();
-		RobotContainer.getDrivebaseSubsystem().resetOdometry();
+		RobotContainer.getDrivebaseSubsystem().resetOdometry(new Pose2d());
 		RobotContainer.getDrivebaseSubsystem().resetHeading();
 		
 		m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+		//System.out.println("Running: " + m_autonomousCommand.toString());
 
 		// schedule the autonomous command (example)
 		if (m_autonomousCommand != null) {

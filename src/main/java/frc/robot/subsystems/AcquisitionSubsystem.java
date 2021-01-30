@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -50,6 +52,7 @@ public class AcquisitionSubsystem extends SubsystemBase {
      * Starts the acquirer motor
      */
     public void startAcquirerMotor() {
+        System.out.println("Starting motor");
         m_acquisitionMotor.set(Constants.ACQUIRER_MOTOR_SPEED);
         m_isRunningAcquirer = true;
     }
