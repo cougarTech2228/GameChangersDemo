@@ -38,18 +38,19 @@ public class RobotContainer {
   // Initializes the xbox controller at port 0
   private final static OI m_oi = new OI();
 
-  
   // Robot Subsystems
   private final static DrivebaseSubsystem m_drivebaseSubsystem = new DrivebaseSubsystem();
-  
-  // TrajectoryManager must be instantiated after DrivebaseSubsystem since it relies on it
+
+  // TrajectoryManager must be instantiated after DrivebaseSubsystem since it
+  // relies on it
   private final static TrajectoryManager m_trajectoryManager = new TrajectoryManager();
-  
+
   private final static VisionSubsystem m_visionSubsystem = new VisionSubsystem();
-  private final static LidarSubsystem m_lidarSubsystem = null;//new LidarSubsystem();
-  private final static AcquisitionSubsystem m_acquisitionSubsystem = null;//new AcquisitionSubsystem();
-  private final static StorageSubsystem m_storageSubsystem = null;//new StorageSubsystem();
-  private final static ShooterSubsystem m_shooterSubsystem = null;//new ShooterSubsystem(m_storageSubsystem, m_lidarSubsystem, m_acquisitionSubsystem);
+  private final static LidarSubsystem m_lidarSubsystem = null;// new LidarSubsystem();
+  private final static AcquisitionSubsystem m_acquisitionSubsystem = null; // new AcquisitionSubsystem();
+  private final static StorageSubsystem m_storageSubsystem = null;// new StorageSubsystem();
+  private final static ShooterSubsystem m_shooterSubsystem = null; // new ShooterSubsystem(m_storageSubsystem,
+                                                                  // m_lidarSubsystem, m_acquisitionSubsystem);
 
   private final static SendableChooser<Double> m_manualVelocityChooser = new SendableChooser<>();
   private final static SendableChooser<Command> m_autoChooser = new SendableChooser<>();
@@ -58,7 +59,7 @@ public class RobotContainer {
   private static Command m_barrelRacingTrajectoryCommand;
   private static Command m_slalomTrajectoryCommand;
   private static Command m_bounceTrajectoryCommand;
-
+  private static Command[] m_galacticSearchTrajectoryCommands;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -66,7 +67,7 @@ public class RobotContainer {
   public RobotContainer() {
 
     DriverStation.getInstance().silenceJoystickConnectionWarning(true);
-    
+
     // The import of trajectories from PathWeaver-generated json files can be very
     // time consuming so we're putting the Trajectory Manager into a thread.
     Thread thread = new Thread(m_trajectoryManager);
@@ -89,7 +90,6 @@ public class RobotContainer {
     m_manualVelocityChooser.addOption("Control Panel", 85000.0);
     m_manualVelocityChooser.addOption("Diagnostic Velocity", 30000.0);
 
-    
     /*
      * // Command Buttons SmartDashboard.putData("Cancel all commands", new
      * InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
@@ -145,20 +145,20 @@ public class RobotContainer {
 
     // --------------------------------------Acquirer
     // Buttons-----------------------------------------------------
-    
 
-     //rightTrigger.whenPressed(() -> m_acquisitionSubsystem.startAcquirerMotor());
-      //rightTrigger.whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
-      
-      //leftTrigger.whenPressed(() -> m_acquisitionSubsystem.startAcquirerMotorReverse());
-      //leftTrigger.whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
-     /* 
-     * new CT_CommandToggler( // Acquirer Motor Toggle - Right Bumper new
-     * InstantCommand(m_acquisitionSubsystem::deployAcquirer), new
-     * InstantCommand(m_acquisitionSubsystem::retractAcquirer) )
-     * .setDefaultState(CommandState.Interruptible) .setToggleButton(rightBumper)
-     * .setCycle(true);
-     */
+    // rightTrigger.whenPressed(() -> m_acquisitionSubsystem.startAcquirerMotor());
+    // rightTrigger.whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
+
+    // leftTrigger.whenPressed(() ->
+    // m_acquisitionSubsystem.startAcquirerMotorReverse());
+    // leftTrigger.whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
+    
+    //  new CT_CommandToggler( // Acquirer Motor Toggle - Right Bumper 
+    //  new InstantCommand(m_acquisitionSubsystem::deployAcquirer), 
+    //  new InstantCommand(m_acquisitionSubsystem::retractAcquirer) )
+    //  .setDefaultState(CommandState.Interruptible) .setToggleButton(rightBumper)
+    //  .setCycle(true);
+    
     // --------------------------------------Shooter
     // Buttons--------------------------------------------------------
     /*
@@ -183,6 +183,7 @@ public class RobotContainer {
     // --------------------------------------Other
     // Buttons----------------------------------------------------------
     xButton.whenPressed(new PrintCommand("X Button Pressed"));
+    yButton.whenPressed(new BopperCommand(m_shooterSubsystem));
   }
 
   public static void configureAutoChooser() {
@@ -190,6 +191,7 @@ public class RobotContainer {
     m_autoChooser.setDefaultOption("Barrel Race", m_barrelRacingTrajectoryCommand);
     m_autoChooser.addOption("Slalom", m_slalomTrajectoryCommand);
     m_autoChooser.addOption("Bounce", m_bounceTrajectoryCommand);
+    m_autoChooser.addOption("Galactic Search", new GalacticSearchAutoCommand(m_visionSubsystem));
   }
 
   public static OI getOI() {
@@ -256,7 +258,7 @@ public class RobotContainer {
   // Subsystem Getters
 
   public static DrivebaseSubsystem getDrivebaseSubsystem() {
-     return m_drivebaseSubsystem;
+    return m_drivebaseSubsystem;
   }
 
   public static AcquisitionSubsystem getAcquisitionSubsystem() {
@@ -284,15 +286,27 @@ public class RobotContainer {
   }
 
   public static void setBarrelRacingTrajectoryCommand(CommandBase command) {
-    m_barrelRacingTrajectoryCommand =  command.withName("Barrel Racing");
+    m_barrelRacingTrajectoryCommand = command.withName("Barrel Racing");
   }
-  
+
   public static void setSlalomTrajectoryCommand(CommandBase command) {
     m_slalomTrajectoryCommand = command.withName("Slalom");
   }
 
   public static void setBounceTrajectoryCommand(CommandBase command) {
     m_bounceTrajectoryCommand = command.withName("Bounce");
+  }
+
+  public static void setGalacticSearchTrajectoryCommands(Command[] commands) {
+    // m_galacticSearchTrajectoryCommand = command.withName("Galactic Search").beforeStarting(() -> {
+    //   m_acquisitionSubsystem.deployAcquirer();
+    //   m_acquisitionSubsystem.startAcquirerMotor();
+    // });
+    m_galacticSearchTrajectoryCommands = commands;
+  }
+
+  public Command[] getGalacticSearchTrajectoryCommands() {
+    return m_galacticSearchTrajectoryCommands;
   }
 
 }

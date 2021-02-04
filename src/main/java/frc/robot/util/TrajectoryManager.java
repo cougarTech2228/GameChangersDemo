@@ -1,7 +1,5 @@
 package frc.robot.util;
 
-import static frc.robot.RobotContainer.getDrivebaseSubsystem;
-
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -34,6 +32,11 @@ public class TrajectoryManager implements Runnable {
     private Trajectory m_barrelRacingTrajectory;
     private Trajectory m_slalomTrajectory;
     private Trajectory m_bounceTrajectory;
+    private Trajectory m_GSBlueA;
+    private Trajectory m_GSBlueB;
+    private Trajectory m_GSRedA;
+    private Trajectory m_GSRedB;
+    private Command[] m_galacticTrajectories;
 
     public TrajectoryManager() {
 
@@ -58,8 +61,6 @@ public class TrajectoryManager implements Runnable {
 
     @Override
     public void run() {
-
-        long startTimeStamp = System.currentTimeMillis();
         
        // m_basicTrajectory = TrajectoryGenerator.generateTrajectory(Arrays.asList(new Pose2d(), new Pose2d(2.0, 0, new Rotation2d())),
         //m_config);
@@ -104,7 +105,7 @@ public class TrajectoryManager implements Runnable {
             Trajectory a9 = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/Bounce-A9.wpilib.json"));
             Trajectory finish = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/Bounce-finish.wpilib.json"));
             SequentialCommandGroup command = new SequentialCommandGroup(
-                new TrajectoryCommand(a3, getDrivebaseSubsystem()).beforeStarting(() -> {
+                new TrajectoryCommand(a3, RobotContainer.getDrivebaseSubsystem()).beforeStarting(() -> {
                         RobotContainer.getDrivebaseSubsystem().resetOdometry(a3.getInitialPose());
                     }),
                 new TrajectoryCommand(a6, RobotContainer.getDrivebaseSubsystem()),
@@ -118,8 +119,36 @@ public class TrajectoryManager implements Runnable {
             e.printStackTrace();
         }
 
+        try {
+            m_GSBlueA = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/Slalom.wpilib.json"));
+            m_GSBlueB = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/GS-B-Blue.wpilib.json"));
+            m_GSRedA = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/Slalom.wpilib.json"));
+            m_GSRedB = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/GS-B-Red.wpilib.json"));
+
+            m_galacticTrajectories[0] = createTrajectory(m_GSBlueA);
+            m_galacticTrajectories[1] = createTrajectory(m_GSBlueB);
+            m_galacticTrajectories[2] = createTrajectory(m_GSRedA);
+            m_galacticTrajectories[3] = createTrajectory(m_GSRedB);
+
+            RobotContainer.setGalacticSearchTrajectoryCommands(m_galacticTrajectories);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         System.out.println("Auto paths created");
         RobotContainer.configureAutoChooser();
         
+    }
+
+    /**
+     * Creates a basic trajectory and resets the odometry of the path to the initial pose
+     * @param trajectory the trajectory to be created
+     * @return the complete command group
+     */
+    private SequentialCommandGroup createTrajectory (Trajectory trajectory) {
+        return new TrajectoryCommand(trajectory, RobotContainer.getDrivebaseSubsystem()).beforeStarting(() -> {
+            RobotContainer.getDrivebaseSubsystem().resetOdometry(trajectory.getInitialPose());
+        });
     }
 }

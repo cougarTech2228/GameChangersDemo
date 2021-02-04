@@ -52,7 +52,6 @@ public class AcquisitionSubsystem extends SubsystemBase {
      * Starts the acquirer motor
      */
     public void startAcquirerMotor() {
-        System.out.println("Starting motor");
         m_acquisitionMotor.set(Constants.ACQUIRER_MOTOR_SPEED);
         m_isRunningAcquirer = true;
     }

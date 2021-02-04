@@ -36,10 +36,7 @@ public final class Constants {
 	public static final int ANALOG_INPUT_3 = 3;
 
 	public static final int BOPPER_PCM_PORT = 0;
-	public static final int CLIMBER_BRAKE_PIN_PCM_PORT = 1;
-	public static final int CLIMBER_DEPLOY_PCM_PORT = 2;
-	public static final int CLIMBER_TRAVERSE_BRAKE_PCM_PORT = 3;
-	public static final int ACQUIRER_DEPLOY_PCM_PORT = 4;
+	public static final int ACQUIRER_DEPLOY_PCM_PORT = 2;
 	public static final int CONTROL_PANEL_DEPLOY_PCM_PORT = 5;
 	public static final int PCM_PORT_6 = 6;
 	public static final int PCM_PORT_7 = 7;
