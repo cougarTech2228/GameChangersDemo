@@ -112,10 +112,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		enableEncoders();
 
 		// Set open and closed loop values 
-		m_leftMaster.configOpenloopRamp(0.0); // TODO - this doesn't do anything at 0. If we don't need it get rid of it.
+		m_leftMaster.configOpenloopRamp(0.5); // TODO - this doesn't do anything at 0. If we don't need it get rid of it.
 		m_leftMaster.configClosedloopRamp(0.0); // TODO - this doesn't do anything at 0. If we don't need it get rid of it.
 
-		m_rightMaster.configOpenloopRamp(0.0); // TODO - this doesn't do anything at 0. If we don't need it get rid of it.
+		m_rightMaster.configOpenloopRamp(0.5); // TODO - this doesn't do anything at 0. If we don't need it get rid of it.
 		m_rightMaster.configClosedloopRamp(0.0); // TODO - this doesn't do anything at 0. If we don't need it get rid of it.
 
 		m_leftMaster.setInverted(true);

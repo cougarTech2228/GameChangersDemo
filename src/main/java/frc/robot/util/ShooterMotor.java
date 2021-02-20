@@ -1,4 +1,4 @@
-package frc.robot.motors;
+package frc.robot.util;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;

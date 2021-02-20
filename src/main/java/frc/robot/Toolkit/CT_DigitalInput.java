@@ -2,7 +2,6 @@ package frc.robot.Toolkit;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.InterruptHandlerFunction;
-import edu.wpi.first.wpilibj2.command.Command;
 
 public class CT_DigitalInput extends DigitalInput {
 
@@ -10,8 +9,7 @@ public class CT_DigitalInput extends DigitalInput {
     private Runnable m_lastMethodToRun;
     private boolean m_isInterruptLatched;
     private boolean m_negateLogic;
-    private Runnable m_interruptRunnable;
-    private Command m_interruptCommand;
+    private boolean m_doBeginningEdge;
 
     /**
      * Negate logic is useful if you want to reverse the output of getStatus(). A use for setting this variable true
@@ -40,8 +38,6 @@ public class CT_DigitalInput extends DigitalInput {
         this(pin, false);
     }
 
-    
-
     /**
      * Creates a DigitalIO instance with a method.
      * Used for sensors connected through DIO ports on the RoboRio. Limit Switches, Light Beam sensors, etc.
@@ -67,11 +63,11 @@ public class CT_DigitalInput extends DigitalInput {
         m_methodToRun = methodToRun;
         m_lastMethodToRun = m_methodToRun;
         m_isInterruptLatched = false;
-        m_interruptRunnable = null;
-        m_interruptCommand = null;
     }
 
     /**
+     * POLLING/NON-INTERRUPT METHOD
+     * 
      * Sets the method that will be ran in the runWhenTripped method.
      * 
      * @param methodToRun the method that will be ran in the runWhenTripped method.
@@ -82,6 +78,8 @@ public class CT_DigitalInput extends DigitalInput {
     }
 
     /**
+     * POLLING/NON-INTERRUPT METHOD
+     * 
      * Resets the method to run for the runWhenTripped method to use as it won't run 
      * again if a method is not inputted or isn't reseted.
      */
@@ -90,6 +88,8 @@ public class CT_DigitalInput extends DigitalInput {
     }
 
     /**
+     * POLLING/NON-INTERRUPT METHOD
+     * 
      * Checks to see if the digital IO is tripped depending on if it is acive high or low.
      * If the sensor was tripped, the method either passed in to a constructor or DigitalIO method setMethodToRun will run.
      * This method will not work if an interrupt has been enabled. 
@@ -99,7 +99,7 @@ public class CT_DigitalInput extends DigitalInput {
      * @return If the digital IO was tripped.
      */
     public boolean runWhenTripped() {
-        if(getStatus() && !m_isInterruptLatched) {
+        if(get() && !m_isInterruptLatched) {
 
             if(m_methodToRun != null) {
                 Runnable method = m_methodToRun;
@@ -116,49 +116,9 @@ public class CT_DigitalInput extends DigitalInput {
     }
 
     /**
-     * Sets the interrupt runnable.
-     * @param runnable the runnable to be used by the interrupt set in the setInterrupt() method.
-     */
-    public void setInterruptRunnable(Runnable runnable) {
-        m_interruptRunnable = runnable;
-    }
-
-    /**
-     * RISING_EDGE_MASK = 1;
-     * FALLING_EDGE_MASK = 256;
-     */
-
-     /**
      * Sets an interrupt for the digital input. Can be used in conjunction with the 
      * onlyHandleInterruptsWhen() method to only run the method when certain conditions are met.
-     * 
-     * @param command the command that will be scheduled when the interrupt is fired.
-     * @param interruptOnRisingEdge fire interrupt on the rising edge.
-     * @param interruptOnFallingEdge fire interrupt on the falling edge.
-     */
-    public void setInterrupt(Command command, boolean interruptOnRisingEdge, boolean interruptOnFallingEdge) {
-
-        m_interruptCommand = command;
-
-        requestInterrupts(new InterruptHandlerFunction<Object>() {
-
-            @Override
-            public void interruptFired(int interruptAssertedMask, Object param) {
-                if(m_isInterruptLatched) {
-                    m_interruptCommand.schedule();
-                } else { /* Do Nothing */ }
-
-            }
-        });
-
-        setUpSourceEdge(interruptOnFallingEdge, interruptOnRisingEdge);
-        enableInterrupts();
-        m_isInterruptLatched = true;
-    }
-
-    /**
-     * Sets an interrupt for the digital input. Can be used in conjunction with the 
-     * onlyHandleInterruptsWhen() method to only run the method when certain conditions are met.
+     * To use a command, for example use: "() -> new PrintCommand("Interrupt Fired").schedule" for the runnable.
      * 
      * @param runnable the runnable that will run when the interrupt is fired.
      * @param interruptOnRisingEdge fire interrupt on the rising edge.
@@ -166,14 +126,12 @@ public class CT_DigitalInput extends DigitalInput {
      */
     public void setInterrupt(Runnable runnable, boolean interruptOnRisingEdge, boolean interruptOnFallingEdge) {
 
-        m_interruptRunnable = runnable;
-
         requestInterrupts(new InterruptHandlerFunction<Object>() {
 
             @Override
             public void interruptFired(int interruptAssertedMask, Object param) {
                 if(m_isInterruptLatched) {
-                    m_interruptRunnable.run();
+                    runnable.run();
                 } else { /* Do Nothing */ }
 
             }
@@ -184,7 +142,52 @@ public class CT_DigitalInput extends DigitalInput {
         m_isInterruptLatched = true;
     }
 
-    
+    /**
+     * Sets up an automatic interrupt that will enable and disable itself based on the two edges.
+     * For example, if you decide to begin on a rising edge, another rising edge cannot trigger 
+     * the interrupt until a falling edge happens.
+     * To use a command, for example use: "() -> new PrintCommand("Interrupt Fired").schedule" for the runnable.
+     * 
+     * @param runnable the runnable to be run when the interrupt is fired.
+     * @param beginOnRisingEdge whether or not the interrupt will start on the rising edge or the falling edge.
+     *                          The example above is an example of this value being true.
+     */
+    public void setAutomaticInterrupt(Runnable runnable, boolean beginOnRisingEdge) {
+
+        m_doBeginningEdge = true;
+
+        requestInterrupts(new InterruptHandlerFunction<Object>() {
+            @Override
+            public void interruptFired(int interruptAssertedMask, Object param) {
+                if(m_isInterruptLatched) {
+                    boolean wasRisingEdge = true;
+                    if((interruptAssertedMask & 0x0100) == 0x0100) {
+                        wasRisingEdge = false;
+                    } 
+
+                    if(beginOnRisingEdge) {
+                        if(wasRisingEdge && m_doBeginningEdge) {
+                            runnable.run();
+                            m_doBeginningEdge = false;
+                        } else if(!wasRisingEdge) {
+                            m_doBeginningEdge = true;
+                        }
+                    } else {
+                    if(!wasRisingEdge && m_doBeginningEdge) {
+                        runnable.run();
+                        m_doBeginningEdge = false;
+                    } else if(wasRisingEdge) {
+                        m_doBeginningEdge = true;
+                    }
+                    }
+                }
+            }
+        });
+
+        setUpSourceEdge(true, true);
+        enableInterrupts();
+        m_isInterruptLatched = true;
+    }
 
     /**
      * Enables the interrupts when all of the conditions are true.
@@ -209,6 +212,20 @@ public class CT_DigitalInput extends DigitalInput {
     }
 
     /**
+     * Gets the status of the digital input. 
+     * Returned value is negated depending on the value of negateLogic passed into the constructor.
+     * If no negateLogic boolean was passed into the constructor, then the logic will not be negated.
+     * 
+     * @return the status of the digital input.
+     */
+    public boolean get() {
+        if(m_negateLogic)
+            return !super.get();
+        else
+            return super.get();
+    }
+
+    /**
      * Determines if every value in a boolean array is true.
      * @return whether or not every value is true.
      */
@@ -221,19 +238,4 @@ public class CT_DigitalInput extends DigitalInput {
         return true;
     }
 
-    /**
-     * Gets the status of the digital input. 
-     * Returned value is negated depending on the value of negateLogic passed into the constructor.
-     * If no negateLogic boolean was passed into the constructor, then the logic will not be negated.
-     * 
-     * @return the status of the digital input.
-     */
-    public boolean getStatus() {
-        if(m_negateLogic)
-            return !get();
-        else
-            return get();
-    }
-
 }
-

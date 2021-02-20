@@ -21,7 +21,7 @@ public class LidarSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         addLidarValue();
-        System.out.println(getLidarAverage());
+        //System.out.println(getLidarAverage());
     }
 
     public void addLidarValue() {

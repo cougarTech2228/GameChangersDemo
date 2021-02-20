@@ -1,37 +1,27 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class AcquisitionSubsystem extends SubsystemBase {
-    private WPI_TalonSRX m_acquisitionMotor;
+
+    private CANSparkMax m_acquisitionMotor;
     private Solenoid m_acquirerExtender;
-    private boolean m_isRunningAcquirer;
 
     public AcquisitionSubsystem() {
-        // You need to register the subsystem to get it's periodic
-		// method to be called by the Scheduler
         register();
 
-        m_acquisitionMotor = new WPI_TalonSRX(Constants.ACQUISITION_MOTOR_CAN_ID);
+        m_acquisitionMotor = new CANSparkMax(42, MotorType.kBrushless);
         m_acquirerExtender = new Solenoid(Constants.PCM_CAN_ID, Constants.ACQUIRER_DEPLOY_PCM_PORT);
-
-        m_acquisitionMotor.configPeakCurrentLimit(Constants.ACQUIRE_CURRENT_LIMIT);
-		m_acquisitionMotor.configPeakCurrentDuration(Constants.ACQUIRE_CURRENT_DURATION);
-		m_acquisitionMotor.configContinuousCurrentLimit(Constants.ACQUIRE_CONTINUOUS_CURRENT_LIMIT);
-        m_acquisitionMotor.enableCurrentLimit(true);
-        m_isRunningAcquirer = false;
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putBoolean("Is Running Acquirer", m_isRunningAcquirer);
+
     }
     
     /**
@@ -52,8 +42,7 @@ public class AcquisitionSubsystem extends SubsystemBase {
      * Starts the acquirer motor
      */
     public void startAcquirerMotor() {
-        m_acquisitionMotor.set(Constants.ACQUIRER_MOTOR_SPEED);
-        m_isRunningAcquirer = true;
+        m_acquisitionMotor.set(-Constants.ACQUIRER_MOTOR_SPEED);
     }
 
     /**
@@ -61,23 +50,12 @@ public class AcquisitionSubsystem extends SubsystemBase {
      */
     public void stopAcquirerMotor() {
         m_acquisitionMotor.set(0);
-        m_isRunningAcquirer = false;
     }
 
     /**
      * Runs the acquirer motor in reverse
      */
     public void startAcquirerMotorReverse() {
-        m_acquisitionMotor.set(-Constants.ACQUIRER_MOTOR_SPEED);
-        m_isRunningAcquirer = true;
-    }
-
-    /**
-     * Gets if the acquirer is running
-     * 
-     * @return if this acquirer is running
-     */
-    public boolean m_isRunningAcquirer() {
-        return m_isRunningAcquirer;
+        m_acquisitionMotor.set(Constants.ACQUIRER_MOTOR_SPEED);
     }
 }

@@ -36,7 +36,7 @@ public class TrajectoryManager implements Runnable {
     private Trajectory m_GSBlueB;
     private Trajectory m_GSRedA;
     private Trajectory m_GSRedB;
-    private Command[] m_galacticTrajectories;
+    private CommandBase[] m_galacticTrajectories;
 
     public TrajectoryManager() {
 
@@ -62,42 +62,21 @@ public class TrajectoryManager implements Runnable {
     @Override
     public void run() {
         
-       // m_basicTrajectory = TrajectoryGenerator.generateTrajectory(Arrays.asList(new Pose2d(), new Pose2d(2.0, 0, new Rotation2d())),
-        //m_config);
+    //    m_basicTrajectory = TrajectoryGenerator.generateTrajectory(Arrays.asList(new Pose2d(), new Pose2d(2.0, 0, new Rotation2d())),
+    //     m_config);
 
-        // m_basicTrajectory = makeTrajectory("Basic", 
-        // List.of(new Translation2d(1.0, 0.0),
-        //         new Translation2d(2.0, 0.0),
-        //         new Translation2d(3.0, 0.0)),       
-        //         new Pose2d(4.0, 0.0, new Rotation2d(0.0)));
+        m_basicTrajectory = makeTrajectory("Basic", 
+        List.of(new Translation2d(1.0, 0.0),
+                new Translation2d(2.0, 0.0),
+                new Translation2d(3.0, 0.0)),       
+                new Pose2d(4.0, 0.0, new Rotation2d(0.0)));
         
-        // RobotContainer.setBasicTrajectoryCommand(new TrajectoryCommand(m_basicTrajectory, RobotContainer.getDrivebaseSubsystem()));
+        RobotContainer.setBasicTrajectoryCommand(createTrajectory(m_basicTrajectory));
 
         // Trajectories are read from Pathweaver .json file; place file in src/main/deploy before building
-        try {
-            m_barrelRacingTrajectory = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/BarrelRacing5.wpilib.json"));
-            CommandBase cmd = new TrajectoryCommand(m_barrelRacingTrajectory, RobotContainer.getDrivebaseSubsystem()).beforeStarting(() -> {
-                RobotContainer.getDrivebaseSubsystem().resetOdometry(m_barrelRacingTrajectory.getInitialPose());
-            });
-            RobotContainer.setBarrelRacingTrajectoryCommand(cmd);
-            // RobotContainer.getDrivebaseSubsystem().resetOdometry(m_barrelRacingTrajectory.getInitialPose());
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
 
-        try {
-            m_slalomTrajectory = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/Slalom.wpilib.json"));
-            RobotContainer.setSlalomTrajectoryCommand(new TrajectoryCommand(m_slalomTrajectory, RobotContainer.getDrivebaseSubsystem()));
-            CommandBase cmd = new TrajectoryCommand(m_slalomTrajectory, RobotContainer.getDrivebaseSubsystem()).beforeStarting(() -> {
-                RobotContainer.getDrivebaseSubsystem().resetOdometry(m_slalomTrajectory.getInitialPose());
-            });
-            RobotContainer.setSlalomTrajectoryCommand(cmd);
-            //RobotContainer.getDrivebaseSubsystem().resetOdometry(m_slalomTrajectory.getInitialPose());
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        RobotContainer.setBarrelRacingTrajectoryCommand(createTrajectory("BarrelRacing5"));
+        RobotContainer.setSlalomTrajectoryCommand(createTrajectory("Slalom"));
 
         try {
             Trajectory a3 = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/Bounce-A3.wpilib.json"));
@@ -119,22 +98,22 @@ public class TrajectoryManager implements Runnable {
             e.printStackTrace();
         }
 
-        try {
-            m_GSBlueA = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/Slalom.wpilib.json"));
-            m_GSBlueB = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/GS-B-Blue.wpilib.json"));
-            m_GSRedA = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/Slalom.wpilib.json"));
-            m_GSRedB = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/GS-B-Red.wpilib.json"));
+        // try {
+        //     m_GSBlueA = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/Slalom.wpilib.json"));
+        //     m_GSBlueB = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/GS-B-Blue.wpilib.json"));
+        //     m_GSRedA = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/Slalom.wpilib.json"));
+        //     m_GSRedB = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/GS-B-Red.wpilib.json"));
 
-            m_galacticTrajectories[0] = createTrajectory(m_GSBlueA);
-            m_galacticTrajectories[1] = createTrajectory(m_GSBlueB);
-            m_galacticTrajectories[2] = createTrajectory(m_GSRedA);
-            m_galacticTrajectories[3] = createTrajectory(m_GSRedB);
+        //     m_galacticTrajectories[0] = createTrajectory(m_GSBlueA);
+        //     m_galacticTrajectories[1] = createTrajectory(m_GSBlueB);
+        //     m_galacticTrajectories[2] = createTrajectory(m_GSRedA);
+        //     m_galacticTrajectories[3] = createTrajectory(m_GSRedB);
 
-            RobotContainer.setGalacticSearchTrajectoryCommands(m_galacticTrajectories);
+        //     RobotContainer.setGalacticSearchTrajectoryCommands(m_galacticTrajectories);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // } catch (IOException e) {
+        //     e.printStackTrace();
+        // }
 
         System.out.println("Auto paths created");
         RobotContainer.configureAutoChooser();
@@ -142,13 +121,34 @@ public class TrajectoryManager implements Runnable {
     }
 
     /**
-     * Creates a basic trajectory and resets the odometry of the path to the initial pose
+     * Creates a trajectory and resets the odometry of the path to the initial pose
+     * 
      * @param trajectory the trajectory to be created
      * @return the complete command group
      */
-    private SequentialCommandGroup createTrajectory (Trajectory trajectory) {
+    private CommandBase createTrajectory(Trajectory trajectory) {
         return new TrajectoryCommand(trajectory, RobotContainer.getDrivebaseSubsystem()).beforeStarting(() -> {
             RobotContainer.getDrivebaseSubsystem().resetOdometry(trajectory.getInitialPose());
         });
+    }
+
+    /**
+     * Creates a trajectory from the filename key and resets the odometry of the path to the initial pose
+     * For example, passing in "Slalom" will get the file from path "/home/lvuser/deploy/Slalom.wpilib.json"
+     * 
+     * @param trajectoryKey the string name for the trajectory
+     * @return the complete command group
+     */
+    private CommandBase createTrajectory(String trajectoryKey) {
+        try {
+            Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/" + trajectoryKey + ".wpilib.json"));
+            return new TrajectoryCommand(trajectory, RobotContainer.getDrivebaseSubsystem()).beforeStarting(() -> {
+                RobotContainer.getDrivebaseSubsystem().resetOdometry(trajectory.getInitialPose());
+            });
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+        }
     }
 }

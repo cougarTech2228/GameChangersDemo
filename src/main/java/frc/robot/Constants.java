@@ -58,7 +58,7 @@ public final class Constants {
 	public static final int RIGHT_REAR_MOTOR_CAN_ID = 12;
 	public static final int LEFT_FRONT_MOTOR_CAN_ID = 13;
 	public static final int LEFT_REAR_MOTOR_CAN_ID = 14;
-	public static final int ACQUISITION_MOTOR_CAN_ID = 21;
+	public static final int SPINNING_BAR_MOTOR_CAN_ID = 21;
 
 	public static final int CLIMBING_NEO_SPARK_MAX_CAN_ID = 42;
 
@@ -86,7 +86,9 @@ public final class Constants {
 	public static final double CONTROL_PANEL_MOTOR_VELOCITY_FAST = 0.27;
 	public static final double CONTROL_PANEL_MOTOR_VELOCITY_SLOW = 0.2;
 
-	public static final double DRUM_MOTOR_VELOCITY = 0.45; 
+	public static final double DRUM_MOTOR_VELOCITY_VERY_SLOW = 0.25;
+	public static final double DRUM_MOTOR_VELOCITY_SLOW = 0.35; 
+	public static final double DRUM_MOTOR_VELOCITY_FAST = 0.45;
 
 	public static final int SHOOT_MODE_SINGLE_CELL = 0;
 	public static final int SHOOT_MODE_ALL_CELLS = 1;
@@ -101,8 +103,8 @@ public final class Constants {
 	public static final int MIN_SHOOTING_DISTANCE = 61;
 	public static final int MAX_SHOOTING_DISTANCE = 0;
 
-	public static final double TIME_BETWEEN_SHOTS = 0.5; // 1.0
-	public static final double BOPPER_WAIT_TIME = 0.1;
+	public static final double TIME_BETWEEN_SHOTS = 0.5; 
+	public static final double BOPPER_WAIT_TIME = 0.2;
 
 	public static final int DRIVE_CURRENT_LIMIT = 60;
 	public static final int DRIVE_CURRENT_DURATION = 100;

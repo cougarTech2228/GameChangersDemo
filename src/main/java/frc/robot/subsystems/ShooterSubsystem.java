@@ -3,42 +3,31 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
-import frc.robot.Toolkit.CT_DigitalInput;
-import frc.robot.motors.ShooterMotor;
-
+import frc.robot.util.ShooterMotor;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ShooterSubsystem extends SubsystemBase {
 
     private ShooterMotor m_shooterMotor;
-    private CT_DigitalInput m_cellInput;
     private Solenoid m_bopper;
     private LidarSubsystem m_lidarSubsystem;
-    private AcquisitionSubsystem m_acquisitionSubsystem;
-    private StorageSubsystem m_storageSubsystem;
     private boolean m_isShooting;
-    private boolean m_isRunningShooterMotor;
 
-    public ShooterSubsystem(StorageSubsystem storageSubsystem, LidarSubsystem lidarSubsystem,
-            AcquisitionSubsystem acquisitionSubsystem) {
+    public ShooterSubsystem(LidarSubsystem lidarSubsystem) {
         register();
 
         m_lidarSubsystem = lidarSubsystem;
-        m_acquisitionSubsystem = acquisitionSubsystem;
-        m_storageSubsystem = storageSubsystem;
 
         m_shooterMotor = new ShooterMotor();
         m_bopper = new Solenoid(Constants.PCM_CAN_ID, Constants.BOPPER_PCM_PORT);
 
         m_isShooting = false;
-        m_isRunningShooterMotor = false;
     }
 
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Shooter Velocity", m_shooterMotor.getSpeed());
-        // SmartDashboard.putBoolean("Is Shooter Slot Occupied", !m_cellInput.get());
         SmartDashboard.putBoolean("Is Robot Shooting", m_isShooting);
     }
 
@@ -48,9 +37,9 @@ public class ShooterSubsystem extends SubsystemBase {
      * 
      * @return if the shooter slot is occupied by a powercell
      */
-    public boolean isShooterBallOccupied() {
-        return !m_cellInput.get();
-    }
+    // public boolean isShooterCellOccupied() {
+    //     return !m_cellInput.get();
+    // }
 
     /**
      * Raises the solenoid which pushes the powercell into the shooter motor
@@ -72,7 +61,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * 
      * @return boolean isShooting
      */
-    public boolean getIsShooting() {
+    public boolean isShooting() {
         return m_isShooting;
     }
 
@@ -94,12 +83,9 @@ public class ShooterSubsystem extends SubsystemBase {
         double currentMoveSpeed = RobotContainer.getDrivebaseSubsystem().getCurrentMoveSpeedAverage();
 
         if (currentMoveSpeed < 0.5 && currentMoveSpeed > -0.5) { // make sure the robot is lower than half speed
-            m_acquisitionSubsystem.stopAcquirerMotor();
-            m_acquisitionSubsystem.deployAcquirer();
-            m_isRunningShooterMotor = true;
             m_shooterMotor.start((int) m_lidarSubsystem.getLidarAverage());
         } else {
-            System.out.println("Robot is running to fast to start shooter motor");
+            System.out.println("Robot is running too fast to start shooter motor");
         }
     }
 
@@ -109,17 +95,15 @@ public class ShooterSubsystem extends SubsystemBase {
      * acquire position.
      */
     public void stopShooterMotor() {
-        // m_acquisitionSubsystem.retractAcquirer();
         m_shooterMotor.stop();
-        m_isRunningShooterMotor = false;
         m_isShooting = false;
-        RobotContainer.getIndexDrumCommand(m_storageSubsystem.getDrumStoragePositionInput(), false).schedule();
     }
 
-    public boolean getIsRunningShooterMotor() {
-        return m_isRunningShooterMotor;
-    }
-
+    /**
+     * Gets the shooter motor
+     * 
+     * @return the shooter motor
+     */
     public ShooterMotor getShooterMotor() {
         return m_shooterMotor;
     }
