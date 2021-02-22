@@ -36,12 +36,12 @@ public class TryToShootCommand extends SequentialCommandGroup {
         addCommands(
             new PrintCommand("TryToShootOnce")
             .andThen(() -> {
-                double curSpeed = shooterSubsystem.getShooterMotor().getSpeed();
-                int curDistance = (int)RobotContainer.getLidarSubsystem().getLidarAverage();
-                double newSpeed = shooterSubsystem.getShooterMotor().closestDistance(curDistance);
-                if(curSpeed > 0 && Math.abs(newSpeed - curSpeed) > 10000) {
-                    shooterSubsystem.getShooterMotor().start(curDistance);
-                }
+                // double curSpeed = shooterSubsystem.getShooterMotor().getSpeed();
+                // int curDistance = (int)RobotContainer.getLidarSubsystem().getLidarAverage();
+                // double newSpeed = shooterSubsystem.getShooterMotor().closestDistance(curDistance);
+                // if(curSpeed > 0 && Math.abs(newSpeed - curSpeed) > 10000) {
+                //     shooterSubsystem.getShooterMotor().start(curDistance);
+                // }
             }),
             RobotContainer.getBopperCommand()//,
             //new WaitCommand(1)

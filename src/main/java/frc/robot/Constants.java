@@ -103,7 +103,7 @@ public final class Constants {
 	public static final int MIN_SHOOTING_DISTANCE = 61;
 	public static final int MAX_SHOOTING_DISTANCE = 0;
 
-	public static final double TIME_BETWEEN_SHOTS = 0.5; 
+	public static final double TIME_BETWEEN_SHOTS = 1; 
 	public static final double BOPPER_WAIT_TIME = 0.2;
 
 	public static final int DRIVE_CURRENT_LIMIT = 60;

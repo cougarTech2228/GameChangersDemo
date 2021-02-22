@@ -15,10 +15,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import frc.robot.Toolkit.CT_CommandToggler;
+import frc.robot.util.ShooterMotor;
 import frc.robot.util.TrajectoryManager;
 import frc.robot.Toolkit.CT_CommandToggler.CommandState;
 
@@ -167,13 +169,16 @@ public class RobotContainer {
 
         // Shooter Motor Toggle - Left Bumper 
         new CT_CommandToggler( 
-            new InstantCommand(() -> {
-                m_acquisitionSubsystem.stopAcquirerMotor();
-                m_acquisitionSubsystem.deployAcquirer();
-                m_storageSubsystem.stopDrumMotor();
-                m_storageSubsystem.stopBarMotor();
-                m_shooterSubsystem.startShooterMotor();
-            }),
+            new SequentialCommandGroup(
+                new InstantCommand(() -> {
+                    m_acquisitionSubsystem.stopAcquirerMotor();
+                    m_acquisitionSubsystem.deployAcquirer();
+                    m_storageSubsystem.stopDrumMotor();
+                    m_storageSubsystem.stopBarMotor();
+                    m_shooterSubsystem.startShooterMotor();
+                })//,
+                //getShooterMotorAdjustmentCommand()//.withInterrupt(OI::getXboxAButton)
+            ),
             new InstantCommand(() -> {
                 m_storageSubsystem.stopDrumMotor();
                 m_storageSubsystem.stopBarMotor();
@@ -264,6 +269,10 @@ public class RobotContainer {
 
     public static BopperCommand getBopperCommand() {
         return new BopperCommand(m_shooterSubsystem);
+    }
+
+    public static ShooterMotorAdjustmentCommand getShooterMotorAdjustmentCommand() {
+        return new ShooterMotorAdjustmentCommand(m_shooterSubsystem, m_lidarSubsystem);
     }
 
     // Subsystem Getters

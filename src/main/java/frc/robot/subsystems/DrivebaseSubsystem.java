@@ -36,7 +36,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	// The mag encoders are on the wheel-side so we don't need to multiply the EPR by the gear ratio here.
 	private static final double m_kEdgesPerRotation = 2048 * m_kGearRatio;
 
-	private static final double m_kWheelDiameterInInches = 7.20;
+	private static final double m_kWheelDiameterInInches = 7.50;
 	private static final double m_kWheelCircumferenceInMeters = Units.inchesToMeters(m_kWheelDiameterInInches) * Math.PI;
 
     private static final double m_kEdgesToMetersAdjustment = (m_kWheelCircumferenceInMeters / m_kEdgesPerRotation);
@@ -50,18 +50,18 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private static final double m_kRamseteZeta = 0.7;
 
 	// Voltage needed to overcome the motors static friction. kS 
-	private static final double m_kS = 0.588; // From Robot Characterization Analysis
+	private static final double m_kS = 0.544; // From Robot Characterization Analysis
 
 	// Voltage needed to hold (or "cruise") at a given constant velocity. kV
-	private static final double m_kV = 2.235; // From Robot Characterization Analysis 
+	private static final double m_kV = 2.19; // From Robot Characterization Analysis 
 
 	// Voltage needed to induce a given acceleration in the motor shaft. kA 
-	private static final double m_kA = 0.1784; // From Robot Characterization Analysis
+	private static final double m_kA = 0.265; // From Robot Characterization Analysis
 
 	// PID "Proportional" term from Robot Characterization Analysis. We don't need
 	// this yet but if we use the more complex Ramsete constructor, it takes two
 	// PIDControllers as input.
-	private static final double m_pValue = 2.17; // From Characterization Analysis
+	private static final double m_pValue = 2.42; // From Characterization Analysis
 
 	private static final int m_kDrivebaseTimeoutMs = 10;
 

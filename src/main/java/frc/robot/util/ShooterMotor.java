@@ -116,8 +116,10 @@ public class ShooterMotor {
         //double velocity = 1.6186 * Math.pow(distance, 2) - (680.53 * distance) + 141735;
 
         if(manualVelocity == -1) {
-            m_talon.set(ControlMode.Velocity, m_shooterMap.get(closestDistance(distance)) - 1500);
+            System.out.println("Not using manual velocity");
+            m_talon.set(ControlMode.Velocity, m_shooterMap.get(closestDistance(distance)) - 7500); //7200
         } else {
+            System.out.println("Using manual velocity");
             m_talon.set(ControlMode.Velocity, manualVelocity);
         }
     }

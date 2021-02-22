@@ -34,6 +34,6 @@ public class ShootEntireDrumCommand extends SequentialCommandGroup {
             .andThen(() -> shooterSubsystem.setIsShooting(false))
         );
         // Use addRequirements() here to declare subsystem dependencies.
-        //addRequirements();
+        //addRequirements(shooterSubsystem);
     }
 }
