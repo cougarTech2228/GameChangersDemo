@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
@@ -36,8 +39,11 @@ public class TrajectoryManager implements Runnable {
     private Trajectory m_GSBlueB;
     private Trajectory m_GSRedA;
     private Trajectory m_GSRedB;
-    private CommandBase[] m_galacticTrajectories;
+    private Command[] m_galacticTrajectories = new Command[4];
 
+
+
+    
     public TrajectoryManager() {
 
         // Create a voltage constraint to ensure we don't accelerate too fast
@@ -59,6 +65,7 @@ public class TrajectoryManager implements Runnable {
                 pathList, endPose, m_config);
     }
 
+    
     @Override
     public void run() {
         
@@ -98,11 +105,11 @@ public class TrajectoryManager implements Runnable {
             e.printStackTrace();
         }
 
-        // try {
-        //     m_GSBlueA = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/Slalom.wpilib.json"));
-        //     m_GSBlueB = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/GS-B-Blue.wpilib.json"));
-        //     m_GSRedA = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/Slalom.wpilib.json"));
-        //     m_GSRedB = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/GS-B-Red.wpilib.json"));
+        try {
+            m_GSBlueA = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/GS-A-Blue.wpilib.json"));
+            m_GSBlueB = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/GS-B-Blue.wpilib.json"));
+            m_GSRedA = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/GS-A-Red.wpilib.json"));
+            m_GSRedB = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/GS-B-Red.wpilib.json"));
 
         //     m_galacticTrajectories[0] = createTrajectory(m_GSBlueA);
         //     m_galacticTrajectories[1] = createTrajectory(m_GSBlueB);
@@ -111,9 +118,9 @@ public class TrajectoryManager implements Runnable {
 
         //     RobotContainer.setGalacticSearchTrajectoryCommands(m_galacticTrajectories);
 
-        // } catch (IOException e) {
-        //     e.printStackTrace();
-        // }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         System.out.println("Auto paths created");
         RobotContainer.configureAutoChooser();

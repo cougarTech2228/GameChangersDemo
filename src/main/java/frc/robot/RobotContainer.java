@@ -57,6 +57,8 @@ public class RobotContainer {
     private static Command m_slalomTrajectoryCommand;
     private static Command m_bounceTrajectoryCommand;
     private static Command[] m_galacticSearchTrajectoryCommands;
+    private static Command m_powerTowerCommand = new InstantCommand().withName("Power Tower");
+
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -228,15 +230,6 @@ public class RobotContainer {
         // bButton.whenPressed(new PrintCommand("B button"));
     }
 
-    public static void configureAutoChooser() {
-        SmartDashboard.putData("Auto Chooser", m_autoChooser);
-        m_autoChooser.setDefaultOption("Basic", m_basicTrajectoryCommand);
-        m_autoChooser.addOption("Barrel Race", m_barrelRacingTrajectoryCommand);
-        m_autoChooser.addOption("Slalom", m_slalomTrajectoryCommand);
-        m_autoChooser.addOption("Bounce", m_bounceTrajectoryCommand);
-        m_autoChooser.addOption("Galactic Search", new GalacticSearchAutoCommand(m_visionSubsystem));
-    }
-
     public static OI getOI() {
         return m_oi;
     }
@@ -325,8 +318,24 @@ public class RobotContainer {
         m_galacticSearchTrajectoryCommands = commands;
     }
 
-    public Command[] getGalacticSearchTrajectoryCommands() {
+    public static Command[] getGalacticSearchTrajectoryCommands() {
         return m_galacticSearchTrajectoryCommands;
     }
 
+    public static void configureAutoChooser() {
+      SmartDashboard.putData("Auto Chooser", m_autoChooser);
+      m_autoChooser.setDefaultOption("Barrel Race", m_barrelRacingTrajectoryCommand);
+      m_autoChooser.addOption("Slalom", m_slalomTrajectoryCommand);
+      m_autoChooser.addOption("Bounce", m_bounceTrajectoryCommand);
+      m_autoChooser.addOption("Galactic Search", new GalacticSearchAutoCommand(m_visionSubsystem).withName("Galactic Search"));
+      m_autoChooser.addOption("Power Tower", m_powerTowerCommand);
+    }
+  
+    public static String getAutoChooserOption(){
+      Command selectedCommand = m_autoChooser.getSelected();
+      if(selectedCommand != null){
+        return selectedCommand.getName();
+      }
+      return null;
+    }
 }
