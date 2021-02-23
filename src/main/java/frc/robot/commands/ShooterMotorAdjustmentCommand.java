@@ -21,32 +21,34 @@ public class ShooterMotorAdjustmentCommand extends CommandBase {
         m_loopCounter = 0;
 
         // Use addRequirements() here to declare subsystem dependencies.
-        //addRequirements(shooterSubsystem);
+        addRequirements(shooterSubsystem);
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        System.out.println("Auto adjustment of the shooter motor velocity ended");
+        System.out.println("Auto adjustment of the shooter motor velocity started");
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        if (m_loopCounter >= 25) { // 25 loop iterations (0.5 seconds)
-            double curSpeed = m_shooterSubsystem.getShooterMotor().getSpeed();
-            int curDistance = (int) (m_lidarSubsystem.getLidarAverage());
-            double newSpeed = m_shooterSubsystem.getShooterMotor().closestDistance(curDistance);
+        // if (m_loopCounter >= 50) { // 25 loop iterations (0.5 seconds)
+        //     System.out.println("Running adjustment loop");
+        //     double curSpeed = m_shooterSubsystem.getShooterMotor().getSpeed();
+        //     int curDistance = (int) (m_lidarSubsystem.getLidarAverage());
+        //     double newSpeed = m_shooterSubsystem.getShooterMotor().closestDistance(curDistance);
 
-            // If the current speed is not zero and the change in speed is greater than or
-            // equal to 10000
-            if (curSpeed > 0 && Math.abs(newSpeed - curSpeed) > 10000) {
-                m_shooterSubsystem.getShooterMotor().start(curDistance);
-            }
-            m_loopCounter = 0;
-        } else {
-            m_loopCounter++;
-        }
+        //     // If the current speed is not zero and the change in speed is greater than or
+        //     // equal to 10000
+        //     if (curSpeed > 0 && Math.abs(newSpeed - curSpeed) > 10000) {
+        //         System.out.println("Changing shooter distance to: " + curDistance);
+        //         m_shooterSubsystem.getShooterMotor().start(curDistance);
+        //     }
+        //     m_loopCounter = 0;
+        // } else {
+        //     m_loopCounter++;
+        // }
     }
 
     // Returns true when the command should end.

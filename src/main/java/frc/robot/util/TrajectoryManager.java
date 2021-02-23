@@ -111,12 +111,12 @@ public class TrajectoryManager implements Runnable {
             m_GSRedA = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/GS-A-Red.wpilib.json"));
             m_GSRedB = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/GS-B-Red.wpilib.json"));
 
-        //     m_galacticTrajectories[0] = createTrajectory(m_GSBlueA);
-        //     m_galacticTrajectories[1] = createTrajectory(m_GSBlueB);
-        //     m_galacticTrajectories[2] = createTrajectory(m_GSRedA);
-        //     m_galacticTrajectories[3] = createTrajectory(m_GSRedB);
+            m_galacticTrajectories[0] = createTrajectory(m_GSBlueA);
+            m_galacticTrajectories[1] = createTrajectory(m_GSBlueB);
+            m_galacticTrajectories[2] = createTrajectory(m_GSRedA);
+            m_galacticTrajectories[3] = createTrajectory(m_GSRedB);
 
-        //     RobotContainer.setGalacticSearchTrajectoryCommands(m_galacticTrajectories);
+            RobotContainer.setGalacticSearchTrajectoryCommands(m_galacticTrajectories);
 
         } catch (IOException e) {
             e.printStackTrace();

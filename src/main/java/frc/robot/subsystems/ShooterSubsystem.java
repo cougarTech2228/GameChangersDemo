@@ -76,14 +76,14 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     /**
-     * Starts the shooter motor, also sets the variable isShooting in the storage
-     * subsystem and in the shooter subsystem to true
+     * Starts the shooter motor and runs the velocity adjustment command
      */
     public void startShooterMotor() {
         double currentMoveSpeed = RobotContainer.getDrivebaseSubsystem().getCurrentMoveSpeedAverage();
 
         if (currentMoveSpeed < 0.5 && currentMoveSpeed > -0.5) { // make sure the robot is lower than half speed
             m_shooterMotor.start((int) m_lidarSubsystem.getLidarAverage());
+            //RobotContainer.getShooterMotorAdjustmentCommand().schedule();
         } else {
             System.out.println("Robot is running too fast to start shooter motor");
         }

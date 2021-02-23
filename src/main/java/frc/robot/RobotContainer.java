@@ -156,12 +156,12 @@ public class RobotContainer {
                 m_acquisitionSubsystem.deployAcquirer();
                 m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_SLOW);
                 m_storageSubsystem.startBarMotor();
-            }), 
+            }).withName("Start Acquirer Motor SeqCommand"), 
             new InstantCommand(() -> {
                 m_acquisitionSubsystem.retractAcquirer();
                 m_storageSubsystem.stopDrumMotor();
                 m_storageSubsystem.stopBarMotor();
-            })
+            }).withName("Stop Acquirer Motor SeqCommand")
         )
         .setDefaultState(CommandState.Interruptible) 
         .setToggleButton(rightBumper)
@@ -178,14 +178,13 @@ public class RobotContainer {
                     m_storageSubsystem.stopDrumMotor();
                     m_storageSubsystem.stopBarMotor();
                     m_shooterSubsystem.startShooterMotor();
-                })//,
-                //getShooterMotorAdjustmentCommand()//.withInterrupt(OI::getXboxAButton)
-            ),
+                })
+            ).withName("Start Shooter Motor SeqCommand"),
             new InstantCommand(() -> {
                 m_storageSubsystem.stopDrumMotor();
                 m_storageSubsystem.stopBarMotor();
                 m_shooterSubsystem.stopShooterMotor();
-            })
+            }).withName("Stop Shooter Motor SeqCommand")
         )
         .setDefaultState(CommandState.Interruptible) 
         .setToggleButton(leftBumper)
