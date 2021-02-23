@@ -69,7 +69,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	
 	private static final double m_kMaxSpeedMetersPerSecond = 2.5;
 	private static final double m_kMaxAccelerationMetersPerSecondSquared = 2.2;
-	private static final double m_kDifferentialDriveConstraintMaxVoltage = 10.0;
+	private static final double m_kDifferentialDriveConstraintMaxVoltage = 12.0;
 
 	private WPI_TalonFX m_rightMaster = new WPI_TalonFX(Constants.RIGHT_FRONT_MOTOR_CAN_ID);
 	private WPI_TalonFX m_rightFollower = new WPI_TalonFX(Constants.RIGHT_REAR_MOTOR_CAN_ID);
@@ -170,6 +170,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public void zeroSensors() {
 		m_leftMaster.setSelectedSensorPosition(0, Constants.PID_PRIMARY, m_kDrivebaseTimeoutMs);
 		m_rightMaster.setSelectedSensorPosition(0, Constants.PID_PRIMARY, m_kDrivebaseTimeoutMs);
+		m_leftFollower.setSelectedSensorPosition(0, Constants.PID_PRIMARY, m_kDrivebaseTimeoutMs);
+		m_rightFollower.setSelectedSensorPosition(0, Constants.PID_PRIMARY, m_kDrivebaseTimeoutMs);
 		System.out.println("All sensors are zeroed.\n");
 	}
 
