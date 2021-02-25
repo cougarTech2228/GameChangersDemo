@@ -82,7 +82,7 @@ public class TrajectoryManager implements Runnable {
 
         // Trajectories are read from Pathweaver .json file; place file in src/main/deploy before building
 
-        RobotContainer.setBarrelRacingTrajectoryCommand(createTrajectory("BarrelRacing5"));
+        RobotContainer.setBarrelRacingTrajectoryCommand(createTrajectory("BarrelRacing6"));
         RobotContainer.setSlalomTrajectoryCommand(createTrajectory("Slalom"));
 
         try {
