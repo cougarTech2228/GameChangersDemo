@@ -41,13 +41,15 @@ public class RobotContainer {
 
     // TrajectoryManager must be instantiated after DrivebaseSubsystem since it
     // relies on it
-    private final static TrajectoryManager m_trajectoryManager = new TrajectoryManager();
+    
 
     private final static VisionSubsystem m_visionSubsystem = new VisionSubsystem();
     private final static LidarSubsystem m_lidarSubsystem = new LidarSubsystem();
     private final static AcquisitionSubsystem m_acquisitionSubsystem = new AcquisitionSubsystem();
     private final static ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem(m_lidarSubsystem);
     private final static StorageSubsystem m_storageSubsystem = new StorageSubsystem(m_shooterSubsystem);
+
+    private final static TrajectoryManager m_trajectoryManager = new TrajectoryManager(m_storageSubsystem, m_acquisitionSubsystem);
 
     private final static SendableChooser<Double> m_manualVelocityChooser = new SendableChooser<>();
     private final static SendableChooser<Command> m_autoChooser = new SendableChooser<>();
@@ -309,7 +311,7 @@ public class RobotContainer {
         m_bounceTrajectoryCommand = command.withName("Bounce");
     }
 
-    public static void setGalacticSearchTrajectoryCommands(Command[] commands) {
+    public static void setGalacticSearchTrajectoryCommands(CommandBase[] commands) {
         // m_galacticSearchTrajectoryCommand = command.withName("Galactic Search").beforeStarting(() -> {
         //   m_acquisitionSubsystem.deployAcquirer();
         //   m_acquisitionSubsystem.startAcquirerMotor();
@@ -328,6 +330,11 @@ public class RobotContainer {
       m_autoChooser.addOption("Bounce", m_bounceTrajectoryCommand);
       m_autoChooser.addOption("Galactic Search", new GalacticSearchAutoCommand(m_visionSubsystem).withName("Galactic Search"));
       m_autoChooser.addOption("Power Tower", m_powerTowerCommand);
+      m_autoChooser.addOption("Basic", m_basicTrajectoryCommand);
+      m_autoChooser.addOption("GS-Red-A", m_galacticSearchTrajectoryCommands[2]);
+      m_autoChooser.addOption("GS-Red-B", m_galacticSearchTrajectoryCommands[3]);
+      m_autoChooser.addOption("GS-Blue-A", m_galacticSearchTrajectoryCommands[0]);
+      m_autoChooser.addOption("GS-Blue-B", m_galacticSearchTrajectoryCommands[1]);
     }
   
     public static String getAutoChooserOption(){

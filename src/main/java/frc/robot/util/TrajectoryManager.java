@@ -23,9 +23,13 @@ import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConst
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.commands.TrajectoryCommand;
+import frc.robot.subsystems.AcquisitionSubsystem;
+import frc.robot.subsystems.StorageSubsystem;
 
 public class TrajectoryManager implements Runnable {
 
@@ -39,12 +43,17 @@ public class TrajectoryManager implements Runnable {
     private Trajectory m_GSBlueB;
     private Trajectory m_GSRedA;
     private Trajectory m_GSRedB;
-    private Command[] m_galacticTrajectories = new Command[4];
+    private CommandBase[] m_galacticTrajectories = new CommandBase[4];
+    private StorageSubsystem m_storageSubsystem;
+    private AcquisitionSubsystem m_acquisitionSubsystem;
 
 
 
     
-    public TrajectoryManager() {
+    public TrajectoryManager(StorageSubsystem storageSubsystem, AcquisitionSubsystem acquisitionSubsystem) {
+
+        m_storageSubsystem = storageSubsystem;
+        m_acquisitionSubsystem = acquisitionSubsystem;
 
         // Create a voltage constraint to ensure we don't accelerate too fast
         var autoVoltageConstraint = new DifferentialDriveVoltageConstraint(
@@ -115,6 +124,22 @@ public class TrajectoryManager implements Runnable {
             m_galacticTrajectories[1] = createTrajectory(m_GSBlueB);
             m_galacticTrajectories[2] = createTrajectory(m_GSRedA);
             m_galacticTrajectories[3] = createTrajectory(m_GSRedB);
+
+            for (int i = 0; i < m_galacticTrajectories.length; i++) {
+                m_galacticTrajectories[i] = m_galacticTrajectories[i]
+                .beforeStarting(() -> {
+                    m_acquisitionSubsystem.deployAcquirer();
+                    m_acquisitionSubsystem.startAcquirerMotor();
+                    m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_SLOW);
+                    m_storageSubsystem.startBarMotor();
+                })
+                .andThen(() -> {
+                    m_acquisitionSubsystem.retractAcquirer();
+                    m_acquisitionSubsystem.stopAcquirerMotor();
+                    m_storageSubsystem.stopDrumMotor();
+                    m_storageSubsystem.stopBarMotor();
+                });
+            }
 
             RobotContainer.setGalacticSearchTrajectoryCommands(m_galacticTrajectories);
 

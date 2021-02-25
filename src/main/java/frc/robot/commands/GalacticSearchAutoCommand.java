@@ -36,35 +36,35 @@ public class GalacticSearchAutoCommand extends SequentialCommandGroup {
 
     public GalacticSearchAutoCommand(VisionSubsystem visionSubsystem) {
         addCommands(
-            new SelectCommand(
-                Map.ofEntries(
-                    Map.entry("aRed", RobotContainer.getGalacticSearchTrajectoryCommands()[2]),
-                    Map.entry("aBlue", RobotContainer.getGalacticSearchTrajectoryCommands()[0]),
-                    Map.entry("bRed", RobotContainer.getGalacticSearchTrajectoryCommands()[3]),
-                    Map.entry("bBlue", RobotContainer.getGalacticSearchTrajectoryCommands()[1])
+            // new SelectCommand(
+            //     Map.ofEntries(
+            //         Map.entry("aRed", RobotContainer.getGalacticSearchTrajectoryCommands()[2]),
+            //         Map.entry("aBlue", RobotContainer.getGalacticSearchTrajectoryCommands()[0]),
+            //         Map.entry("bRed", RobotContainer.getGalacticSearchTrajectoryCommands()[3]),
+            //         Map.entry("bBlue", RobotContainer.getGalacticSearchTrajectoryCommands()[1])
 
-                ), new Supplier<Object>(){
-                    @Override
-                    public Object get() {
+            //     ), new Supplier<Object>(){
+            //         @Override
+            //         public Object get() {
 
-                        String bridgettePath = path.getString("noPath");
-                        String neuralPath = neuralNetwork.getString("noPath");
-                        Double neuralConf = neuralNetworkConf.getDouble(-1);
+            //             String bridgettePath = path.getString("noPath");
+            //             String neuralPath = neuralNetwork.getString("noPath");
+            //             Double neuralConf = neuralNetworkConf.getDouble(-1);
 
-                        System.out.println(neuralConf + "% sure it's " + neuralPath + ", Vision says it's " + bridgettePath);
+            //             System.out.println(neuralConf + "% sure it's " + neuralPath + ", Vision says it's " + bridgettePath);
 
-                        if((!bridgettePath.equals("noPath")) && (neuralConf <= 93)){
-                            return bridgettePath;
-                        }
-                        else{
-                            return neuralPath;
-                        }
+            //             if((!bridgettePath.equals("noPath")) && (neuralConf <= 93)){
+            //                 return bridgettePath;
+            //             }
+            //             else{
+            //                 return neuralPath;
+            //             }
                         
                         
                         
-                    }
-                }
-            )
+            //         }
+            //     }
+            // )
         );
     }
 }
