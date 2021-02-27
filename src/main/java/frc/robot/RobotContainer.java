@@ -328,7 +328,14 @@ public class RobotContainer {
       m_autoChooser.setDefaultOption("Barrel Race", m_barrelRacingTrajectoryCommand);
       m_autoChooser.addOption("Slalom", m_slalomTrajectoryCommand);
       m_autoChooser.addOption("Bounce", m_bounceTrajectoryCommand);
-      m_autoChooser.addOption("Galactic Search", new GalacticSearchAutoCommand(m_visionSubsystem).withName("Galactic Search"));
+      m_autoChooser.addOption("Galactic Search", new GalacticSearchAutoCommand(m_visionSubsystem)
+      .beforeStarting(() -> {
+        m_acquisitionSubsystem.deployAcquirer();
+        m_acquisitionSubsystem.startAcquirerMotor();
+        m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_SLOW);
+        m_storageSubsystem.startBarMotor();
+      }
+      ).withName("Galactic Search"));
       m_autoChooser.addOption("Power Tower", m_powerTowerCommand);
       m_autoChooser.addOption("Basic", m_basicTrajectoryCommand);
       m_autoChooser.addOption("GS-Red-A", m_galacticSearchTrajectoryCommands[2]);

@@ -125,21 +125,21 @@ public class TrajectoryManager implements Runnable {
             m_galacticTrajectories[2] = createTrajectory(m_GSRedA);
             m_galacticTrajectories[3] = createTrajectory(m_GSRedB);
 
-            for (int i = 0; i < m_galacticTrajectories.length; i++) {
-                m_galacticTrajectories[i] = m_galacticTrajectories[i]
-                .beforeStarting(() -> {
-                    m_acquisitionSubsystem.deployAcquirer();
-                    m_acquisitionSubsystem.startAcquirerMotor();
-                    m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_SLOW);
-                    m_storageSubsystem.startBarMotor();
-                })
-                .andThen(() -> {
-                    m_acquisitionSubsystem.retractAcquirer();
-                    m_acquisitionSubsystem.stopAcquirerMotor();
-                    m_storageSubsystem.stopDrumMotor();
-                    m_storageSubsystem.stopBarMotor();
-                });
-            }
+            // for (int i = 0; i < m_galacticTrajectories.length; i++) {
+            //     m_galacticTrajectories[i] = m_galacticTrajectories[i]
+            //     .beforeStarting(() -> {
+            //         m_acquisitionSubsystem.deployAcquirer();
+            //         m_acquisitionSubsystem.startAcquirerMotor();
+            //         m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_SLOW);
+            //         m_storageSubsystem.startBarMotor();
+            //     })
+            //     .andThen(() -> {
+            //         m_acquisitionSubsystem.retractAcquirer();
+            //         m_acquisitionSubsystem.stopAcquirerMotor();
+            //         m_storageSubsystem.stopDrumMotor();
+            //         m_storageSubsystem.stopBarMotor();
+            //     });
+            // }
 
             RobotContainer.setGalacticSearchTrajectoryCommands(m_galacticTrajectories);
 
