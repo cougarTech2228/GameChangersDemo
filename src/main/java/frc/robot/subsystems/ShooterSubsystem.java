@@ -11,35 +11,40 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private ShooterMotor m_shooterMotor;
     private Solenoid m_bopper;
-    private LidarSubsystem m_lidarSubsystem;
     private boolean m_isShooting;
+    private boolean m_isMotorUpToSpeed;
 
-    public ShooterSubsystem(LidarSubsystem lidarSubsystem) {
+    public ShooterSubsystem() {
         register();
-
-        m_lidarSubsystem = lidarSubsystem;
 
         m_shooterMotor = new ShooterMotor();
         m_bopper = new Solenoid(Constants.PCM_CAN_ID, Constants.BOPPER_PCM_PORT);
 
         m_isShooting = false;
+        m_isMotorUpToSpeed = false;
+        
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Shooter Velocity", m_shooterMotor.getSpeed());
+        SmartDashboard.putNumber("Shooter Velocity", m_shooterMotor.getSelectedSensorVelocity());
         SmartDashboard.putBoolean("Is Robot Shooting", m_isShooting);
+        SmartDashboard.putNumber("Lidar Distance: ", RobotContainer.getLidarManager().getLidarAverage());
+
+        if(m_isShooting) { // + 4000 is if the sensor is a bit low, this is mainly to prevent the driver from immediately starting it
+            if((m_shooterMotor.getSelectedSensorVelocity() + 4000) >= m_shooterMotor.getFormulaVelocity()) {
+                m_isMotorUpToSpeed = true;
+            } else {
+                m_isMotorUpToSpeed = false;
+            }
+        }
+
+        //System.out.println("Is shooter motor up to speed? " + m_isMotorUpToSpeed);
     }
 
-    /**
-     * Returns the opposite value of the getter for the sensor as for example if the
-     * getter returns true that means the sensor is not blocked.
-     * 
-     * @return if the shooter slot is occupied by a powercell
-     */
-    // public boolean isShooterCellOccupied() {
-    //     return !m_cellInput.get();
-    // }
+    public boolean isShooterMotorUpToSpeed() {
+        return m_isMotorUpToSpeed;
+    }
 
     /**
      * Raises the solenoid which pushes the powercell into the shooter motor
@@ -79,14 +84,8 @@ public class ShooterSubsystem extends SubsystemBase {
      * Starts the shooter motor and runs the velocity adjustment command
      */
     public void startShooterMotor() {
-        double currentMoveSpeed = RobotContainer.getDrivebaseSubsystem().getCurrentMoveSpeedAverage();
-
-        if (currentMoveSpeed < 0.5 && currentMoveSpeed > -0.5) { // make sure the robot is lower than half speed
-            m_shooterMotor.start((int) m_lidarSubsystem.getLidarAverage());
-            //RobotContainer.getShooterMotorAdjustmentCommand().schedule();
-        } else {
-            System.out.println("Robot is running too fast to start shooter motor");
-        }
+        m_shooterMotor.start(this);
+        //m_isShooting = true;
     }
 
     /**
@@ -95,7 +94,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * acquire position.
      */
     public void stopShooterMotor() {
-        m_shooterMotor.stop();
+        m_shooterMotor.stopMotor();
         m_isShooting = false;
     }
 

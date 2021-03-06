@@ -92,6 +92,17 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private Pose2d m_initialPose = new Pose2d();
 
+	public enum DRIVETYPE {
+		kArcadeDrive,
+		kArcadeDriveSquared,
+		kCurvatureDrive,
+		kCurvatureDriveQuick
+	}
+
+	private DRIVETYPE curDriveType = DRIVETYPE.kArcadeDrive;
+
+	private boolean m_allowDriving;
+
 	public DrivebaseSubsystem() {
 
 		// You need to register the subsystem to get it's periodic
@@ -159,11 +170,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		*/
 
 		m_differentialDrive = new DifferentialDrive(m_leftMaster, m_rightMaster);
+		m_differentialDrive.setDeadband(0.01);
 
 		m_gyro.resetYaw();
 
 		m_odometry = new DifferentialDriveOdometry(m_gyro.getHeading());
 		resetOdometry(new Pose2d());
+
+		m_allowDriving = true;
 	}
 
 	/* Zero all sensors used */
@@ -211,20 +225,24 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	 * 
 	 * Uses the deadband and the PercentOutput control mode
 	 */
-	private void arcadeDrive() {
-		double forward = OI.getXboxLeftJoystickY();
-		double turn = OI.getXboxRightJoystickX(); 
+	// private void arcadeDrive() {
+	// 	double forward = OI.getXboxLeftJoystickY();
+	// 	double turn = OI.getXboxRightJoystickX(); 
 
-		forward = deadband(forward);
-		turn = deadband(turn) * 0.65; // Where did .65 come from??????
+	// 	forward = deadband(forward);
+	// 	turn = deadband(turn) * 0.3; // Where did .65 come from??????
 
-		m_leftMaster.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -turn); 
-		m_rightMaster.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, +turn);
-	}
+	// 	m_leftMaster.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -turn); 
+	// 	m_rightMaster.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, +turn);
+	// }
 
 	// Only used by ShooterSubsystem in teleop
 	public double getCurrentMoveSpeedAverage() {
 		return (m_leftMaster.get() + m_rightMaster.get()) / 2;
+	}
+
+	public void setCurDriveType(DRIVETYPE curDriveType) {
+		this.curDriveType = curDriveType;
 	}
 
 
@@ -239,10 +257,22 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			-m_rightMaster.getSelectedSensorPosition(Constants.PID_PRIMARY) * m_kEdgesToMetersAdjustment);
 		}
 		else {
-			arcadeDrive();
+			if(m_allowDriving) {
+				m_differentialDrive.arcadeDrive(-Math.max(Math.abs(OI.getXboxLeftJoystickY()), 0.5) * OI.getXboxRightJoystickX(), OI.getXboxLeftJoystickY());
+			} else {
+				if(Math.abs(OI.getXboxRightJoystickX()) > 0.01 || Math.abs(OI.getXboxLeftJoystickY()) > 0.01) {
+					RobotContainer.getRumbleCommand(0.5).schedule();
+				}
+			}
+			
 		}
 
 		m_differentialDrive.feed();
+	}
+
+
+	public void allowDriving(boolean allowDriving) {
+		m_allowDriving = allowDriving;
 	}
 
 	public void setOutputVolts(double leftVolts, double rightVolts) {
@@ -345,10 +375,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	}
 
 	public void turnLeft(double speed){
+		m_rightMaster.set(0);
 		m_leftMaster.set(speed);
 	}
 
 	public void turnRight(double speed){
+		m_leftMaster.set(0);
 		m_rightMaster.set(speed);
 	}
 }

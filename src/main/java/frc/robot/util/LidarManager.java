@@ -1,26 +1,32 @@
-package frc.robot.subsystems;
+package frc.robot.util;
 
 import edu.wpi.first.wpilibj.I2C.Port;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Toolkit.CT_LIDARSensor;
 
 import java.util.ArrayList;
 
-public class LidarSubsystem extends SubsystemBase {
+public class LidarManager implements Runnable {
 
-    CT_LIDARSensor m_Lidar = new CT_LIDARSensor(Port.kOnboard);
-    private ArrayList<Double> m_Last5Dist = new ArrayList<Double>();
-    private double m_TotalDist = 0;
-    private double m_Average = 0;
+  private CT_LIDARSensor m_Lidar = new CT_LIDARSensor(Port.kOnboard);
+  private ArrayList<Double> m_Last5Dist = new ArrayList<Double>();
+  private double m_TotalDist = 0;
+  private double m_Average = 0;
 
-    public LidarSubsystem() {
-        register();
-        m_Lidar.startMeasuring();
-    }
+  public LidarManager() {
+  }
 
-    @Override
-    public void periodic() {
+  @Override
+  public void run() {
+    while (true)
+      try {
+        Thread.sleep(20);
+        m_Lidar.measureDistanceOnce();
         addLidarValue();
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+        
         //System.out.println(getLidarAverage());
     }
 
@@ -50,5 +56,9 @@ public class LidarSubsystem extends SubsystemBase {
         
         m_Average = m_TotalDist / m_Last5Dist.size();
         return m_Average;
+      }
+
+      public CT_LIDARSensor getLidar() {
+        return m_Lidar;
       }
 }

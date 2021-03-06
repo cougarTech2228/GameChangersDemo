@@ -19,11 +19,11 @@ public class CT_LIDARSensor {
 	public CT_LIDARSensor(Port port) {
 		m_port = (byte) port.value;
 		I2CJNI.i2CInitialize(m_port);
+		reset();
+		writeRegister(0x11, 0x00);
 	}
 
-	public void startMeasuring() {
-		writeRegister(0x04, 0x08 | 32); // default plus bit 5
-		writeRegister(0x11, 0xff);
+	public void measureDistanceOnce() {
 		writeRegister(0x00, 0x04);
 	}
 
@@ -51,5 +51,9 @@ public class CT_LIDARSensor {
 		I2CJNI.i2CWrite(m_port, k_deviceAddress, m_buffer, (byte) 1);
 		I2CJNI.i2CRead(m_port, k_deviceAddress, m_buffer, (byte) 2);
 		return m_buffer.getShort(0);
+	}
+
+	public void reset() {
+		writeRegister(0x00, 0x00);
 	}
 };

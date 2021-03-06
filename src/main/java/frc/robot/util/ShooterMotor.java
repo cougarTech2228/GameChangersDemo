@@ -3,154 +3,84 @@ package frc.robot.util;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
-import java.util.HashMap;
+//import edu.wpi.first.networktables.NetworkTableEntry;
+//import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.ShooterSubsystem;
 
-public class ShooterMotor {
+public class ShooterMotor extends WPI_TalonSRX {
 
-    private HashMap<Integer, Double> m_shooterMap;
     private boolean m_encodersAreAvailable;
-    private WPI_TalonSRX m_talon;
+    //private NetworkTableEntry m_velocityEntry;
 
     public ShooterMotor() {
         
-        m_talon = new WPI_TalonSRX(Constants.SHOOTER_CAN_ID);
-
-        m_shooterMap = new HashMap<Integer, Double>();
-
-        // Distance (in), Velocity        
-        m_shooterMap.put(80, 110512.0);
-        m_shooterMap.put(81, 106598.0);
-        m_shooterMap.put(83, 100577.0);
-        m_shooterMap.put(84, 98206.9);
-        m_shooterMap.put(87, 92757.3);
-        m_shooterMap.put(90, 88939.9);
-        m_shooterMap.put(95, 84649.9);
-        m_shooterMap.put(100, 81867.3);
-        m_shooterMap.put(105, 79972.3);
-        m_shooterMap.put(110, 78646.6);
-        m_shooterMap.put(120, 77046.0);
-        m_shooterMap.put(130, 76280.6);
-        m_shooterMap.put(140, 75999.4);
-        m_shooterMap.put(150, 76021.1);
-        m_shooterMap.put(160, 76242.2);
-        m_shooterMap.put(170, 76599.9);
-        m_shooterMap.put(180, 77053.6);
-        m_shooterMap.put(190, 77576.1);
-        m_shooterMap.put(200, 78148.6);
-        m_shooterMap.put(210, 78757.7);
-        m_shooterMap.put(220, 79393.6);
-        m_shooterMap.put(230, 80049.2);
-        m_shooterMap.put(240, 80719.0);
-        m_shooterMap.put(250, 81399.0);
-        m_shooterMap.put(260, 82085.8);
-        m_shooterMap.put(270, 82777.1);
-        m_shooterMap.put(280, 83470.9);
-        m_shooterMap.put(290, 84165.7);
-        m_shooterMap.put(300, 84860.4);
-        m_shooterMap.put(310, 85553.8);
-        m_shooterMap.put(320, 86245.3);
-        m_shooterMap.put(330, 86934.3);
-        m_shooterMap.put(340, 87620.3);
-        m_shooterMap.put(350, 88302.9);
-        m_shooterMap.put(360, 88981.8);
+        super(Constants.SHOOTER_CAN_ID);
         
-        m_talon.configFactoryDefault();
-
-        m_encodersAreAvailable =  m_talon.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, Constants.PID_PRIMARY, Constants.kTimeoutMs) == ErrorCode.OK;
+        //m_velocityEntry = Shuffleboard.getTab("Shooter Velocity Adjuster").add("Shooter Velocity", 1).getEntry();
         
-        m_talon.config_kP(0, 0.01764, Constants.kTimeoutMs); //.0465
-        m_talon.config_kI(0, 0, Constants.kTimeoutMs);
-        m_talon.config_kD(0, 0, Constants.kTimeoutMs);
-        m_talon.config_kF(0, 0.00851, Constants.kTimeoutMs);
-        m_talon.config_IntegralZone(0, 0, Constants.kTimeoutMs);
-        m_talon.configClosedLoopPeakOutput(0, 1.0, Constants.kTimeoutMs);
-        m_talon.configAllowableClosedloopError(0, 0, Constants.kTimeoutMs);
-        m_talon.setInverted(true);
-        m_talon.setSensorPhase(false);
-        m_talon.configVoltageCompSaturation(11);
+        configFactoryDefault();
 
-        m_talon.configClosedLoopPeriod(0, 1, Constants.kTimeoutMs);
+        m_encodersAreAvailable = configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, Constants.PID_PRIMARY, Constants.kTimeoutMs) == ErrorCode.OK;
+        
+        config_kP(0, 0.01764, Constants.kTimeoutMs); //.0465
+        config_kI(0, 0, Constants.kTimeoutMs);
+        config_kD(0, 0, Constants.kTimeoutMs);
+        config_kF(0, 0.00851, Constants.kTimeoutMs);
+        config_IntegralZone(0, 0, Constants.kTimeoutMs);
+        configClosedLoopPeakOutput(0, 1.0, Constants.kTimeoutMs);
+        configAllowableClosedloopError(0, 0, Constants.kTimeoutMs);
+        setInverted(true);
+        setSensorPhase(false);
+        configVoltageCompSaturation(11);
 
-        m_talon.configPeakOutputForward(+1.0, Constants.kTimeoutMs);
-        m_talon.configPeakOutputReverse(-1.0, Constants.kTimeoutMs);
+        configClosedLoopPeriod(0, 1, Constants.kTimeoutMs);
 
-        m_talon.configPeakCurrentLimit(Constants.SHOOTER_CURRENT_LIMIT);
-		m_talon.configPeakCurrentDuration(Constants.SHOOTER_CURRENT_DURATION);
-		m_talon.configContinuousCurrentLimit(Constants.SHOOTER_CONTINUOUS_CURRENT_LIMIT);
-		m_talon.enableCurrentLimit(true);
+        configPeakOutputForward(+1.0, Constants.kTimeoutMs);
+        configPeakOutputReverse(-1.0, Constants.kTimeoutMs);
 
-        // new ShuffleboardAdapter("Shooter Motor")
-        // .addDoubleText("Motor Speed", Constants.SHOOTER_MOTOR_SPEED, value ->
-        // Constants.SHOOTER_MOTOR_SPEED = value);
-        // GainsBinder g = new GainsBinder("Shooter Motor", m_talon, new Gains(0.01, 0,
-        // 0, 0, 0, 1.0));
-        /*
-         * m_talon.setPID(0, new Gains(0.01, 0, 0, 0, 0, 1.0));
-         */
+        configPeakCurrentLimit(Constants.SHOOTER_CURRENT_LIMIT);
+		configPeakCurrentDuration(Constants.SHOOTER_CURRENT_DURATION);
+		configContinuousCurrentLimit(Constants.SHOOTER_CONTINUOUS_CURRENT_LIMIT);
+		enableCurrentLimit(true);
 
-        //new ShuffleboardAdapter("shooter")
-         //.addDoubleText("kP", 0, value -> {m_talon.config_kP(0, value); })
-        // // .addDoubleText("kI", 0, value -> {m_talon.config_kF(0, value); })
-        // // .addDoubleText("kD", 0, value -> {m_talon.config_kI(0, value); })
-        // .addDoubleText("kF", 0, value -> {m_talon.config_kF(0, value); })
-        // // .addDoubleText("kIZone", 0, value -> {m_talon.config_IntegralZone(0,
-        // // (int)value); })
-        // .addDoubleText("TargetVel", 0, value -> m_talon.set(ControlMode.Velocity,
-        // value))
-        //.addDouble("Velocity Error", 0, () -> m_talon.getClosedLoopError())
-        //.addDouble("Velocity", 0, () -> m_talon.getSelectedSensorVelocity());
-        // .addDouble("Current", 0, () -> m_talon.getSupplyCurrent());
-
-        System.out.println(m_encodersAreAvailable);
+        System.out.println("Are encoders available for shooter motor? " + m_encodersAreAvailable);
     }
 
-    public void start(int distance) {
-        System.out.println("Distance: " + closestDistance(distance));
-        double manualVelocity = RobotContainer.getManualVelocity();
-        //double velocity = 1.6186 * Math.pow(distance, 2) - (680.53 * distance) + 141735;
+    /**
+     * Start the shooter motor
+     */
+    public void start(ShooterSubsystem shooterSubsystem) {
+        double velocity = getFormulaVelocity();
+        System.out.println("Setting velocity to: " + velocity);
 
-        if(manualVelocity == -1) {
-            System.out.println("Not using manual velocity");
-            m_talon.set(ControlMode.Velocity, m_shooterMap.get(closestDistance(distance)) - 7500); //7200
+        set(ControlMode.Velocity, velocity);
+
+        if(velocity == 0) { // If the distance was outside the boundaries
+            RobotContainer.getRumbleCommand(0.5).schedule();
         } else {
-            System.out.println("Using manual velocity");
-            m_talon.set(ControlMode.Velocity, manualVelocity);
+            shooterSubsystem.setIsShooting(true);
         }
+
+        // Shuffleboard velocity
+        // set(ControlMode.Velocity, m_velocityEntry.getDouble(1));
     }
 
-    public void stop() {
-        m_talon.set(ControlMode.Velocity, 0);
-    }
+    public double getFormulaVelocity() {
+        double distance = RobotContainer.getLidarManager().getLidarAverage();
 
-    public double getSpeed() {
-        return m_talon.getSelectedSensorVelocity();
-    }
-
-    public WPI_TalonSRX getTalon() {
-        return m_talon;
-    }
-
-    public int closestDistance(int distance) {
-        int currentClosest = -1;
-        boolean firstTime = true;
-        for (int curDistance : m_shooterMap.keySet()) {
-            if (firstTime) {
-                currentClosest = curDistance;
-                firstTime = false;
-            } else {
-                if (distance == curDistance) {
-                    return curDistance;
-                } else if ((Math.abs(curDistance - distance)) < (Math.abs(currentClosest - distance))) {
-                    currentClosest = curDistance;
-                }
-            }
+        if(distance < 275 && distance > 25) { // Arbitrary values that will probably have to be adjusted
+            double velocity = (-0.0162 * distance * distance * distance) + (9.7771 * distance * distance) - (1846.9 * distance) + 176968;
+            return velocity;
+        } else {
+            return 0;
         }
-        return currentClosest;
+
+        
     }
 }

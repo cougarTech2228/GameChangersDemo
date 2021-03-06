@@ -46,6 +46,7 @@ public class StorageSubsystem extends SubsystemBase {
     public void startDrumMotor(double velocity) {
         System.out.println("start drum motor");
         m_drumSparkMotor.set(-velocity);
+        startBarMotor();
     }
 
     /**
@@ -61,7 +62,8 @@ public class StorageSubsystem extends SubsystemBase {
     public void stopDrumMotor() {
         System.out.println("stop drum motor");
         m_drumSparkMotor.set(0);
-        m_doIndexing = false;
+        stopBarMotor();
+        doIndexing(false);
     }
 
     /**
@@ -83,7 +85,9 @@ public class StorageSubsystem extends SubsystemBase {
      * @param value the value to be set to m_doIndexing
      */
     public void doIndexing(boolean value) {
+        System.out.println("Changing doIndexing from: " + m_doIndexing + "to: " + value);
         m_doIndexing = value;
+        
     }
 
     /**

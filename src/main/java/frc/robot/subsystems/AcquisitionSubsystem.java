@@ -4,38 +4,62 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 
 public class AcquisitionSubsystem extends SubsystemBase {
 
     private CANSparkMax m_acquisitionMotor;
     private Solenoid m_acquirerExtender;
+    private boolean m_isAcquirerDeployed;
 
     public AcquisitionSubsystem() {
         register();
 
         m_acquisitionMotor = new CANSparkMax(42, MotorType.kBrushless);
         m_acquirerExtender = new Solenoid(Constants.PCM_CAN_ID, Constants.ACQUIRER_DEPLOY_PCM_PORT);
+        m_isAcquirerDeployed = false;
     }
 
     @Override
     public void periodic() {
 
     }
+
+    public SequentialCommandGroup deployAcquirerGroup(boolean runAcquirer) {
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> {
+                m_acquirerExtender.set(true);
+                m_isAcquirerDeployed = true;
+            }),
+            new WaitCommand(1),
+            new InstantCommand(() -> {
+                if(runAcquirer)
+                    m_acquisitionMotor.set(-Constants.ACQUIRER_MOTOR_SPEED);
+            })
+        );
+    }
     
     /**
      * Deploys the acquirer by setting the solenoid to true
      */
-    public void deployAcquirer() {
+    public void deployAcquirer(boolean runAcquirer) {
         m_acquirerExtender.set(true);
+        m_isAcquirerDeployed = true;
+        if(runAcquirer)
+            m_acquisitionMotor.set(-Constants.ACQUIRER_MOTOR_SPEED); 
     }
 
     /**
      * Retracts the acquirer by setting the solenoid to false
      */
     public void retractAcquirer() {
+        m_acquisitionMotor.set(0);
         m_acquirerExtender.set(false);
+        m_isAcquirerDeployed = false;
     }
 
     /**
@@ -57,5 +81,9 @@ public class AcquisitionSubsystem extends SubsystemBase {
      */
     public void startAcquirerMotorReverse() {
         m_acquisitionMotor.set(Constants.ACQUIRER_MOTOR_SPEED);
+    }
+
+    public boolean isAcquirerDeployed() {
+        return m_isAcquirerDeployed;
     }
 }

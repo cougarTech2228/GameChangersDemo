@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import java.util.Map;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -16,11 +18,16 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.DrivebaseSubsystem.DRIVETYPE;
 import frc.robot.Toolkit.CT_CommandToggler;
+import frc.robot.util.ButtonManager;
+import frc.robot.util.LidarManager;
 import frc.robot.util.ShooterMotor;
 import frc.robot.util.TrajectoryManager;
 import frc.robot.Toolkit.CT_CommandToggler.CommandState;
@@ -34,9 +41,6 @@ import frc.robot.Toolkit.CT_CommandToggler.CommandState;
  */
 public class RobotContainer {
 
-    // Initializes the xbox controller at port 0
-    private final static OI m_oi = new OI();
-
     // Robot Subsystems
     private final static DrivebaseSubsystem m_drivebaseSubsystem = new DrivebaseSubsystem();
 
@@ -45,10 +49,12 @@ public class RobotContainer {
     
 
     private final static VisionSubsystem m_visionSubsystem = new VisionSubsystem();
-    private final static LidarSubsystem m_lidarSubsystem = new LidarSubsystem();
+    private final static LidarManager m_lidarManager = new LidarManager();
     private final static AcquisitionSubsystem m_acquisitionSubsystem = new AcquisitionSubsystem();
-    private final static ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem(m_lidarSubsystem);
+    private final static ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
     private final static StorageSubsystem m_storageSubsystem = new StorageSubsystem(m_shooterSubsystem);
+
+    private final static ButtonManager m_buttonManager = new ButtonManager(m_shooterSubsystem, m_storageSubsystem, m_acquisitionSubsystem);
 
     private final static TrajectoryManager m_trajectoryManager = new TrajectoryManager(m_storageSubsystem, m_acquisitionSubsystem);
 
@@ -72,11 +78,14 @@ public class RobotContainer {
 
         // The import of trajectories from PathWeaver-generated json files can be very
         // time consuming so we're putting the Trajectory Manager into a thread.
-        Thread thread = new Thread(m_trajectoryManager);
-        thread.start();
+        Thread trajectoryManagerThread = new Thread(m_trajectoryManager);
+        trajectoryManagerThread.start();
+
+        Thread lidarManagerThread = new Thread(m_lidarManager);
+        lidarManagerThread.start();
 
         // Configure the button and shuffleboard bindings
-        configureButtonBindings();
+        m_buttonManager.configureButtonBindings();
         configureShuffleboardBindings();
     }
 
@@ -126,117 +135,7 @@ public class RobotContainer {
         * InstantCommand(m_acquisitionSubsystem::startAcquirerMotorReverse));
         */
     }
-
-    /**
-     * Use this method to define your button->command mappings. Buttons can be
-     * created by instantiating a {@link GenericHID} or one of its subclasses
-     * ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then
-     * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-     */
-    private void configureButtonBindings() {
-
-        Button rightTrigger = new Button(OI::getXboxRightTriggerPressed);
-        Button leftTrigger = new Button(OI::getXboxLeftTriggerPressed);
-        Button rightBumper = new Button(OI::getXboxRightBumper);
-        Button leftBumper = new Button(OI::getXboxLeftBumper);
-
-        Button aButton = new Button(OI::getXboxAButton);
-        Button bButton = new Button(OI::getXboxBButton);
-        Button xButton = new Button(OI::getXboxXButton);
-        Button yButton = new Button(OI::getXboxYButton);
-
-        // ---------------- Acquirer Buttons ----------------
-
-        rightTrigger.whenPressed(() -> m_acquisitionSubsystem.startAcquirerMotor());
-        rightTrigger.whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
-
-        leftTrigger.whenPressed(() -> m_acquisitionSubsystem.startAcquirerMotorReverse());
-        leftTrigger.whenReleased(() -> m_acquisitionSubsystem.stopAcquirerMotor());
-        
-        // Acquirer Motor Toggle - Right Bumper
-        new CT_CommandToggler(  
-            new InstantCommand(() -> {
-                m_acquisitionSubsystem.deployAcquirer();
-                m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_SLOW);
-                m_storageSubsystem.startBarMotor();
-            }).withName("Start Acquirer Motor SeqCommand"), 
-            new InstantCommand(() -> {
-                m_acquisitionSubsystem.retractAcquirer();
-                m_storageSubsystem.stopDrumMotor();
-                m_storageSubsystem.stopBarMotor();
-            }).withName("Stop Acquirer Motor SeqCommand")
-        )
-        .setDefaultState(CommandState.Interruptible) 
-        .setToggleButton(rightBumper)
-        .setCycle(true);
-        
-        // ---------------- Shooter Buttons ----------------
-
-        // Shooter Motor Toggle - Left Bumper 
-        new CT_CommandToggler( 
-            new SequentialCommandGroup(
-                new InstantCommand(() -> {
-                    m_acquisitionSubsystem.stopAcquirerMotor();
-                    m_acquisitionSubsystem.deployAcquirer();
-                    m_storageSubsystem.stopDrumMotor();
-                    m_storageSubsystem.stopBarMotor();
-                    m_shooterSubsystem.startShooterMotor();
-                })
-            ).withName("Start Shooter Motor SeqCommand"),
-            new InstantCommand(() -> {
-                m_storageSubsystem.stopDrumMotor();
-                m_storageSubsystem.stopBarMotor();
-                m_shooterSubsystem.stopShooterMotor();
-            }).withName("Stop Shooter Motor SeqCommand")
-        )
-        .setDefaultState(CommandState.Interruptible) 
-        .setToggleButton(leftBumper)
-        .setCycle(true);
-        
-        // Shoot Entire Drum Toggle - A Button
-        new CT_CommandToggler() 
-        .setDefaultState(CommandState.Interruptible) 
-        .addJumpCommand(
-            getShootEntireDrumCommand().beforeStarting(() -> m_shooterSubsystem.setIsShooting(true)), 
-            CommandState.Interruptible 
-        )
-        .addCommand(null) 
-        .setToggleButton(aButton) 
-        .setCycle(true);
-        
-        // ---------------- Diagnostic Buttons ----------------
-        // Allocate available buttons when testing
-        bButton.whenPressed(new InstantCommand(() -> new TargetCorrectionCommand(m_drivebaseSubsystem).schedule()));
-
-                // Index Drum
-        //bButton.whenPressed(new InstantCommand(() -> m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_SLOW)).beforeStarting(() -> m_storageSubsystem.doIndexing(true)));
-        
-        // Start Drum
-        //xButton.whenPressed(new InstantCommand(() -> m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_VERY_SLOW)));
-
-        // Stop Drum
-        // bButton.whenPressed(new InstantCommand(() -> m_storageSubsystem.stopDrumMotor()));
-
-        // Start Bar Motor
-        // bButton.whenPressed(new InstantCommand(() -> m_storageSubsystem.startBarMotor()));
-
-        // Stop Bar Motor 
-        // bButton.whenPressed(new InstantCommand(() -> m_storageSubsystem.stopBarMotor()));
-        
-        // Start Shooter Motor
-        // bButton.whenPressed(new InstantCommand(() -> m_shooterSubsystem.startShooterMotor()));
-
-        // Bopper
-        // bButton.whenPressed(new BopperCommand(m_shooterSubsystem));
-
-        // Print "B Button"
-        // bButton.whenPressed(new PrintCommand("B button"));
-    }
-
-    public static OI getOI() {
-        return m_oi;
-    }
-
+    
     public static Double getManualVelocity() {
         return m_manualVelocityChooser.getSelected();
     }
@@ -255,12 +154,8 @@ public class RobotContainer {
 
     // Shooting Commands
 
-    public static TryToShootCommand getTryToShootCommand() {
-        return new TryToShootCommand(m_shooterSubsystem, m_storageSubsystem);
-    }
-
     public static ShootEntireDrumCommand getShootEntireDrumCommand() {
-        return new ShootEntireDrumCommand(m_shooterSubsystem, m_storageSubsystem);
+        return new ShootEntireDrumCommand(m_shooterSubsystem, m_storageSubsystem, m_acquisitionSubsystem);
     }
 
     public static BopperCommand getBopperCommand() {
@@ -268,7 +163,11 @@ public class RobotContainer {
     }
 
     public static ShooterMotorAdjustmentCommand getShooterMotorAdjustmentCommand() {
-        return new ShooterMotorAdjustmentCommand(m_shooterSubsystem, m_lidarSubsystem);
+        return new ShooterMotorAdjustmentCommand(m_shooterSubsystem);
+    }
+
+    public static RumbleCommand getRumbleCommand(double time) {
+        return new RumbleCommand(time);
     }
 
     // Subsystem Getters
@@ -293,9 +192,13 @@ public class RobotContainer {
         return m_visionSubsystem;
     }
 
-    public static LidarSubsystem getLidarSubsystem() {
-        return m_lidarSubsystem;
+    public static LidarManager getLidarManager() {
+        return m_lidarManager;
     }
+
+    // public static LidarSubsystem getLidarSubsystem() {
+    //     return m_lidarSubsystem;
+    // }
 
     public static void setBasicTrajectoryCommand(CommandBase command) {
         m_basicTrajectoryCommand = command.withName("Basic");
@@ -332,10 +235,11 @@ public class RobotContainer {
       m_autoChooser.addOption("Bounce", m_bounceTrajectoryCommand);
       m_autoChooser.addOption("Galactic Search", new GalacticSearchAutoCommand(m_visionSubsystem)
       .beforeStarting(() -> {
-        m_acquisitionSubsystem.deployAcquirer();
-        m_acquisitionSubsystem.startAcquirerMotor();
+          m_acquisitionSubsystem.deployAcquirerGroup(true).schedule();
+        //m_acquisitionSubsystem.deployAcquirer(true);
+        //m_acquisitionSubsystem.startAcquirerMotor();
         m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_SLOW);
-        m_storageSubsystem.startBarMotor();
+        //m_storageSubsystem.startBarMotor();
       }
       ).withName("Galactic Search"));
       m_autoChooser.addOption("Power Tower", m_powerTowerCommand);
