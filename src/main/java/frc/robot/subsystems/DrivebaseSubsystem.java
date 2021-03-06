@@ -343,4 +343,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public void setInitialPose(Pose2d pose){
 		m_initialPose = pose;
 	}
+
+	public void turnLeft(double speed){
+		m_leftMaster.set(speed);
+	}
+
+	public void turnRight(double speed){
+		m_rightMaster.set(speed);
+	}
 }

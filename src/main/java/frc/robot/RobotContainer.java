@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.commands.*;
@@ -205,8 +206,9 @@ public class RobotContainer {
         
         // ---------------- Diagnostic Buttons ----------------
         // Allocate available buttons when testing
-        
-        // Index Drum
+        bButton.whenPressed(new InstantCommand(() -> new TargetCorrectionCommand(m_drivebaseSubsystem).schedule()));
+
+                // Index Drum
         //bButton.whenPressed(new InstantCommand(() -> m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_SLOW)).beforeStarting(() -> m_storageSubsystem.doIndexing(true)));
         
         // Start Drum

@@ -17,8 +17,7 @@ public class VisionSubsystem extends SubsystemBase {
     NetworkTable table = ntinst.getTable("PowerTower");
     
     ShuffleboardTab tab = Shuffleboard.getTab("Power Tower");
-    NetworkTableEntry xOffset = tab.add("PT Offset", 0).getEntry();
-    
+    NetworkTableEntry xOffset = tab.add("PT Offset", 1).getEntry();
 
     public VisionSubsystem() {
         register();
