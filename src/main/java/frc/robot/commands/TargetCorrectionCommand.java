@@ -50,10 +50,10 @@ public class TargetCorrectionCommand extends CommandBase {
             if(magnitude > 100) {
                 if(diff > 0) {
                     System.out.println("Turn left fast");
-                    m_drivebaseSubsystem.turnLeft(0.1);
+                    m_drivebaseSubsystem.turnLeft(0.15);
                 } else {
                     System.out.println("Turn right fast");
-                    m_drivebaseSubsystem.turnRight(0.1);
+                    m_drivebaseSubsystem.turnRight(0.15);
                 }
             } else {
 

@@ -122,6 +122,11 @@ public final class Constants {
 	
 	public static final double ELEVATOR_DEPLOY_SPEED_LOWER = 0.5;
 
+	public static final double TARGET_CORRECTION_MAX_DIFF = 480.0;
+	public static final double TARGET_CORRECTION_MAX_MAGNITUDE = 100;
+	public static final double TARGET_CORRECTION_TURN_FAST = 0.15; // .1
+	public static final double TARGET_CORRECTION_TURN_SLOW = 0.15; // .075
+
 	/**
 	 * Set to zero to skip waiting for confirmation. Set to nonzero to wait and
 	 * report to DS if action fails.

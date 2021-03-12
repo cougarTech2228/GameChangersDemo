@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.DrivebaseSubsystem.DRIVETYPE;
 import frc.robot.Toolkit.CT_CommandToggler;
 import frc.robot.util.ButtonManager;
 import frc.robot.util.LidarManager;

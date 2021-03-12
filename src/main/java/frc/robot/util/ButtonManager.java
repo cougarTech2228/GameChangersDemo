@@ -101,7 +101,14 @@ public class ButtonManager {
         // ---------------- Diagnostic Buttons ----------------
         // Allocate available buttons when testing
 
-        bButton.whenPressed(new TargetCorrectionCommand(RobotContainer.getDrivebaseSubsystem()));
+        bButton.toggleWhenPressed(
+            new TargetCorrectionCommand(
+                RobotContainer.getDrivebaseSubsystem()//, 
+                //RobotContainer.getShooterSubsystem(),
+                //RobotContainer.getAcquisitionSubsystem(),
+                //RobotContainer.getStorageSubsystem()
+            ), true
+        );
 
         // Reset Lidar
         // bButton.whenPressed(new InstantCommand(() -> m_lidarManager.getLidar().reset()));

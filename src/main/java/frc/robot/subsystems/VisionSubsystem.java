@@ -35,6 +35,7 @@ public class VisionSubsystem extends SubsystemBase {
                 System.out.println(selection);
                 selectedAuto = selection;
                 selected.setString(selection);
+
         }
     }
 }

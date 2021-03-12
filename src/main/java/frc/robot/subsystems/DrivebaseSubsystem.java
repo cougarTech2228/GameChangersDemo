@@ -92,15 +92,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private Pose2d m_initialPose = new Pose2d();
 
-	public enum DRIVETYPE {
-		kArcadeDrive,
-		kArcadeDriveSquared,
-		kCurvatureDrive,
-		kCurvatureDriveQuick
-	}
-
-	private DRIVETYPE curDriveType = DRIVETYPE.kArcadeDrive;
-
 	private boolean m_allowDriving;
 
 	public DrivebaseSubsystem() {
@@ -241,11 +232,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		return (m_leftMaster.get() + m_rightMaster.get()) / 2;
 	}
 
-	public void setCurDriveType(DRIVETYPE curDriveType) {
-		this.curDriveType = curDriveType;
-	}
-
-
 	@Override
 	public void periodic() {
 		if (RobotState.isAutonomous()) {
@@ -258,9 +244,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		}
 		else {
 			if(m_allowDriving) {
-				m_differentialDrive.arcadeDrive(-Math.max(Math.abs(OI.getXboxLeftJoystickY()), 0.5) * OI.getXboxRightJoystickX(), OI.getXboxLeftJoystickY());
+				//m_differentialDrive.arcadeDrive(-Math.max(Math.abs(OI.getXboxLeftJoystickY()), 0.5) * OI.getXboxRightJoystickX(), OI.getXboxLeftJoystickY());
+				m_differentialDrive.curvatureDrive(-OI.getXboxRightJoystickX() * 0.4, OI.getXboxLeftJoystickY(), true);
 			} else {
-				if(Math.abs(OI.getXboxRightJoystickX()) > 0.01 || Math.abs(OI.getXboxLeftJoystickY()) > 0.01) {
+				if(Math.abs(OI.getXboxRightJoystickX()) > 0.05 || Math.abs(OI.getXboxLeftJoystickY()) > 0.05) {
+					// System.out.println("RightJoystickX: " + Math.abs(OI.getXboxRightJoystickX()));
+					// System.out.println("LeftJoystickY: " + Math.abs(OI.getXboxLeftJoystickY()));
+					System.out.println("Rumbling because driver is trying to drive when the robot is auto adjusting");
 					RobotContainer.getRumbleCommand(0.5).schedule();
 				}
 			}
@@ -360,6 +350,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		m_rightFollower.setNeutralMode(NeutralMode.Brake);
 	}
 
+	public CT_Gyro getGyro() {
+		return m_gyro;
+	}
+
 	public void resetOdometry(Pose2d pose) {
 		zeroSensors();
 		resetHeading();
@@ -382,5 +376,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public void turnRight(double speed){
 		m_leftMaster.set(0);
 		m_rightMaster.set(speed);
+	}
+
+	public void turnLeftOnAxis(double speed) {
+		m_leftMaster.set(speed);
+		m_rightMaster.set(-speed);
+	}
+
+	public void turnRightOnAxis(double speed) {
+		m_rightMaster.set(speed);
+		m_leftMaster.set(-speed);
 	}
 }
