@@ -12,11 +12,7 @@ public class VisionSubsystem extends SubsystemBase {
     private String selectedAuto = null;
     NetworkTable visionModeTable = NetworkTableInstance.getDefault().getTable("Vision Mode");
     NetworkTableEntry selected = visionModeTable.getEntry("selected");
-
-    NetworkTableInstance ntinst = NetworkTableInstance.getDefault();
-    NetworkTable table = ntinst.getTable("PowerTower");
-    
-    ShuffleboardTab tab = Shuffleboard.getTab("Power Tower");
+    ShuffleboardTab tab = Shuffleboard.getTab("PowerTower");
     NetworkTableEntry xOffset = tab.add("PT Offset", 1).getEntry();
 
     public VisionSubsystem() {

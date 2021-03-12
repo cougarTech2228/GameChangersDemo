@@ -25,7 +25,7 @@ public class GalacticSearchAutoCommand extends SequentialCommandGroup {
     @SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
 
     NetworkTableInstance ntinst = NetworkTableInstance.getDefault();
-    NetworkTable gsTable = ntinst.getTable("GalaticSearch");
+    NetworkTable gsTable = ntinst.getTable("GalacticSearch");
     NetworkTableEntry path = gsTable.getEntry("path");
     NetworkTableEntry neuralNetwork = gsTable.getEntry("Neural");
     NetworkTableEntry neuralNetworkConf = gsTable.getEntry("NeuralConf");
