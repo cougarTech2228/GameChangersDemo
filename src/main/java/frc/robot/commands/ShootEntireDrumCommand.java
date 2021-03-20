@@ -28,54 +28,57 @@ public class ShootEntireDrumCommand extends SequentialCommandGroup {
         m_storageSubsystem = storageSubsystem;
 
         addCommands(
-            // new PrintCommand("Shoot entire drum")
-            // .andThen(() -> shooterSubsystem.setIsShooting(true))
-            // .andThen(() -> storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_FAST)),
-            // waitBopIndex(),
-            // waitBopIndex(),
-            // waitBopIndex(),
-            // waitBopIndex(),
-            // waitBopIndex()
-            // .andThen(() -> shooterSubsystem.setIsShooting(false))
-            // .andThen(() -> {
-            //     acquisitionSubsystem.retractAcquirer();
-            //     storageSubsystem.stopDrumMotor();
-            //     storageSubsystem.stopBarMotor();
-            //     shooterSubsystem.stopShooterMotor();
-            // })
+            new InstantCommand(() -> {
+                //System.out.println("Shoot entire drum");
+                shooterSubsystem.setIsShooting(true);
+                storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_FAST);
+            }),
+            waitBopIndex(),
+            waitBopIndex(),
+            waitBopIndex(),
+            waitBopIndex(),
+            waitBopIndex()
+            .andThen(() -> {
+                //acquisitionSubsystem.retractAcquirer();
+                shooterSubsystem.setIsShooting(false);
+                storageSubsystem.stopDrumMotor();
+                shooterSubsystem.stopShooterMotor();
+                RobotContainer.getDrivebaseSubsystem().allowDriving(true);
+            })
 
-            new SelectCommand(
-                Map.ofEntries(
-                    Map.entry(true, new SequentialCommandGroup(
-                                    new PrintCommand("Shoot entire drum")
-                                    .andThen(() -> {
-                                        shooterSubsystem.setIsShooting(true);
-                                        storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_FAST);
-                                        //storageSubsystem.startBarMotor();
-                                    }),
-                                    waitBopIndex(),
-                                    waitBopIndex(),
-                                    waitBopIndex(),
-                                    waitBopIndex(),
-                                    waitBopIndex()
-                                    .andThen(() -> shooterSubsystem.setIsShooting(false))
-                                    .andThen(() -> {
-                                        acquisitionSubsystem.retractAcquirer();
-                                        storageSubsystem.stopDrumMotor();
-                                        //storageSubsystem.stopBarMotor();
-                                        shooterSubsystem.stopShooterMotor();
-                                    }))),
-                    Map.entry(false, new SequentialCommandGroup(
-                                        new InstantCommand(() -> {
-                                            System.out.println("Shooter motor is not up to speed");
-                                            System.out.println("Current shooter speed: " + shooterSubsystem.getShooterMotor().getSelectedSensorVelocity());
-                                            System.out.println("Targeted motor speed: " + shooterSubsystem.getShooterMotor().getFormulaVelocity());           
-                                        }),
-                                        RobotContainer.getRumbleCommand(0.5)
-                                    ))
+
+
+            // new SelectCommand(
+            //     Map.ofEntries(
+            //         Map.entry(true, new SequentialCommandGroup(
+            //                         new PrintCommand("Shoot entire drum")
+            //                         .andThen(() -> {
+            //                             shooterSubsystem.setIsShooting(true);
+            //                             storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_FAST);
+            //                         }),
+            //                         waitBopIndex(),
+            //                         waitBopIndex(),
+            //                         waitBopIndex(),
+            //                         waitBopIndex(),
+            //                         waitBopIndex()
+            //                         .andThen(() -> shooterSubsystem.setIsShooting(false))
+            //                         .andThen(() -> {
+            //                             //acquisitionSubsystem.retractAcquirer();
+            //                             storageSubsystem.stopDrumMotor();
+            //                             shooterSubsystem.stopShooterMotor();
+            //                             RobotContainer.getDrivebaseSubsystem().allowDriving(true);
+            //                         }))),
+            //         Map.entry(false, new SequentialCommandGroup(
+            //                             new InstantCommand(() -> {
+            //                                 System.out.println("Shooter motor is not up to speed");
+            //                                 System.out.println("Current shooter speed: " + shooterSubsystem.getShooterMotor().getSelectedSensorVelocity());
+            //                                 System.out.println("Targeted motor speed: " + shooterSubsystem.getShooterMotor().getFormulaVelocity());           
+            //                             }),
+            //                             RobotContainer.getRumbleCommand(0.5)
+            //                         ))
                     
-                ), shooterSubsystem::isShooterMotorUpToSpeed
-            )
+            //     ), shooterSubsystem::isShooterMotorUpToSpeed
+            // )
         );
         // Use addRequirements() here to declare subsystem dependencies.
         //addRequirements(shooterSubsystem);

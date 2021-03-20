@@ -103,7 +103,7 @@ public final class Constants {
 	public static final int MIN_SHOOTING_DISTANCE = 61;
 	public static final int MAX_SHOOTING_DISTANCE = 0;
 
-	public static final double TIME_BETWEEN_SHOTS = 1; 
+	public static final double TIME_BETWEEN_SHOTS = 1.25; 
 	public static final double BOPPER_WAIT_TIME = 0.2;
 
 	public static final int DRIVE_CURRENT_LIMIT = 60;
@@ -122,10 +122,10 @@ public final class Constants {
 	
 	public static final double ELEVATOR_DEPLOY_SPEED_LOWER = 0.5;
 
-	public static final double TARGET_CORRECTION_MAX_DIFF = 480.0;
-	public static final double TARGET_CORRECTION_MAX_MAGNITUDE = 100;
-	public static final double TARGET_CORRECTION_TURN_FAST = 0.15; // .1
-	public static final double TARGET_CORRECTION_TURN_SLOW = 0.15; // .075
+	public static final double TC_UPPER_MAGNITUDE_BOUND = 480.0;
+	public static final double TC_LOWER_MAGNITUDE_BOUND = 5;
+	public static final double TC_TURN_FAST_SPEED = 0.1;
+	public static final double TC_TURN_SLOW_SPEED = 0.075; // .075
 
 	/**
 	 * Set to zero to skip waiting for confirmation. Set to nonzero to wait and

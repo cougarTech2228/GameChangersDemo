@@ -76,7 +76,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * @param isShooting
      */
     public void setIsShooting(boolean isShooting) {
-        System.out.println("Setting is shooting to: " + isShooting);
+        //System.out.println("Setting is shooting to: " + isShooting);
         m_isShooting = isShooting;
     }
 
@@ -84,6 +84,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * Starts the shooter motor and runs the velocity adjustment command
      */
     public void startShooterMotor() {
+        
         m_shooterMotor.start(this);
         //m_isShooting = true;
     }
@@ -94,6 +95,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * acquire position.
      */
     public void stopShooterMotor() {
+        RobotContainer.getStorageSubsystem().getCompressor().start();
         m_shooterMotor.stopMotor();
         m_isShooting = false;
     }

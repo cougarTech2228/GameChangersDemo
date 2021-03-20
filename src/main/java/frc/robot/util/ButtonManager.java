@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import java.util.Map;
 
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -73,13 +74,10 @@ public class ButtonManager {
                     Map.entry(true, new InstantCommand(() -> {
                                         m_acquisitionSubsystem.retractAcquirer();
                                         m_storageSubsystem.stopDrumMotor();
-                                        //m_storageSubsystem.stopBarMotor();
                                     }).withName("Stop Acquirer Motor SeqCommand")),
                     Map.entry(false, new InstantCommand(() -> {
-                                        m_acquisitionSubsystem.deployAcquirerGroup(true).schedule();
-                                        //m_acquisitionSubsystem.deployAcquirer(true);
+                                        m_acquisitionSubsystem.deployAcquirer(true);
                                         m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_SLOW);
-                                        //m_storageSubsystem.startBarMotor();
                                     }).withName("Start Acquirer Motor SeqCommand"))
                 ),
                 m_acquisitionSubsystem::isAcquirerDeployed
@@ -102,13 +100,18 @@ public class ButtonManager {
         // Allocate available buttons when testing
 
         bButton.toggleWhenPressed(
-            new TargetCorrectionCommand(
-                RobotContainer.getDrivebaseSubsystem()//, 
-                //RobotContainer.getShooterSubsystem(),
-                //RobotContainer.getAcquisitionSubsystem(),
-                //RobotContainer.getStorageSubsystem()
+            new SequentialCommandGroup(
+                new InstantCommand(() -> m_acquisitionSubsystem.deployAcquirer(true)),
+                new WaitCommand(0.5),
+                new TargetCorrectionCommand(
+                    RobotContainer.getDrivebaseSubsystem(), 
+                    RobotContainer.getAcquisitionSubsystem(),
+                    RobotContainer.getShooterSubsystem()
+                ).beforeStarting(() -> m_storageSubsystem.stopDrumMotor())
             ), true
         );
+
+        //aButton.whenPressed(new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
 
         // Reset Lidar
         // bButton.whenPressed(new InstantCommand(() -> m_lidarManager.getLidar().reset()));
@@ -158,7 +161,7 @@ public class ButtonManager {
      */
     private SequentialCommandGroup getStartShooterMotorGroup() {
         return new SequentialCommandGroup(
-            m_acquisitionSubsystem.deployAcquirerGroup(false),
+            //m_acquisitionSubsystem.deployAcquirerGroup(false),
             new InstantCommand(() -> {
                 //m_acquisitionSubsystem.deployAcquirer(false);
                 m_acquisitionSubsystem.stopAcquirerMotor();

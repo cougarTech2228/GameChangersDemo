@@ -234,11 +234,8 @@ public class RobotContainer {
       m_autoChooser.addOption("Bounce", m_bounceTrajectoryCommand);
       m_autoChooser.addOption("Galactic Search", new GalacticSearchAutoCommand(m_visionSubsystem)
       .beforeStarting(() -> {
-          m_acquisitionSubsystem.deployAcquirerGroup(true).schedule();
-        //m_acquisitionSubsystem.deployAcquirer(true);
-        //m_acquisitionSubsystem.startAcquirerMotor();
+        m_acquisitionSubsystem.deployAcquirer(true);
         m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_SLOW);
-        //m_storageSubsystem.startBarMotor();
       }
       ).withName("Galactic Search"));
       m_autoChooser.addOption("Power Tower", m_powerTowerCommand);

@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -16,8 +17,8 @@ public class BopperCommand extends SequentialCommandGroup {
 
     public BopperCommand(ShooterSubsystem shooterSubsystem) {
         addCommands(
-            new PrintCommand("Bopping")
-            .andThen(() -> shooterSubsystem.raiseBopper()),
+            //new PrintCommand("Bopping")
+            new InstantCommand(() -> shooterSubsystem.raiseBopper()),
             new WaitCommand(Constants.BOPPER_WAIT_TIME)
             .andThen(() -> shooterSubsystem.lowerBopper())
         );
