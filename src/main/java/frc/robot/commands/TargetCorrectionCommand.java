@@ -53,20 +53,20 @@ public class TargetCorrectionCommand extends CommandBase {
 
             if(magnitude > Constants.TC_LOWER_MAGNITUDE_BOUND) { // If the magnitude is between 480 and 5 the robot turns fast
                 if(diff > 0) {
-                    System.out.println("Turn left fast");
+                   // System.out.println("Turn left fast");
                     m_drivebaseSubsystem.turnLeft(Constants.TC_TURN_FAST_SPEED);
                 } else {
-                    System.out.println("Turn right fast");
+                    //System.out.println("Turn right fast");
                     m_drivebaseSubsystem.turnRight(Constants.TC_TURN_FAST_SPEED);
                 }
             } else { // If the magnitude is less than 5
 
                 if (diff > 1 && !matchedLines) { 
-                    System.out.println("Turn left slow");
+                    //System.out.println("Turn left slow");
                     m_drivebaseSubsystem.turnLeft(Constants.TC_TURN_SLOW_SPEED);
                 }
                 else if(diff < 1 && !matchedLines) {
-                    System.out.println("Turn right slow");
+                    //System.out.println("Turn right slow");
                     m_drivebaseSubsystem.turnRight(Constants.TC_TURN_SLOW_SPEED);
                 }
                 else { // Lines are matched up

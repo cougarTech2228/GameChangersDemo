@@ -111,7 +111,18 @@ public class ButtonManager {
             ), true
         );
 
-        //aButton.whenPressed(new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
+        aButton.whenPressed(
+            new SequentialCommandGroup(
+                new InstantCommand(() -> {
+                    m_shooterSubsystem.setIsShooting(false);
+                    m_storageSubsystem.stopDrumMotor();
+                    m_shooterSubsystem.stopShooterMotor();
+                    RobotContainer.getDrivebaseSubsystem().allowDriving(true);
+                    RobotContainer.getDrivebaseSubsystem().stop();
+                    CommandScheduler.getInstance().cancelAll();
+                })
+            )
+        );
 
         // Reset Lidar
         // bButton.whenPressed(new InstantCommand(() -> m_lidarManager.getLidar().reset()));
