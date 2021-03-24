@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.Constants;
 import frc.robot.OI;
 import frc.robot.RobotContainer;
-import frc.robot.commands.ShooterMotorAdjustmentCommand;
 import frc.robot.commands.TargetCorrectionCommand;
 import frc.robot.subsystems.AcquisitionSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -83,21 +82,6 @@ public class ButtonManager {
                 m_acquisitionSubsystem::isAcquirerDeployed
             ).withName("Acquirer Select Command")
         );
-        
-        // Shooter motor button
-        // leftBumper.whenPressed(new SelectCommand(
-        //     Map.ofEntries(
-        //         Map.entry(true, getStopShooterMotorGroup().withName("Stop Shooter Motor SeqCommand")),
-        //         Map.entry(false, getStartShooterMotorGroup().withName("Start Shooter Motor SeqCommand"))
-        //     ),
-        //     m_shooterSubsystem::isShooting
-        // ).withName("Shooter select command"));
-
-        //aButton.toggleWhenPressed(RobotContainer.getShootEntireDrumCommand(), true);
-        
-        
-        // ---------------- Diagnostic Buttons ----------------
-        // Allocate available buttons when testing
 
         bButton.toggleWhenPressed(
             new SequentialCommandGroup(
@@ -123,6 +107,9 @@ public class ButtonManager {
                 })
             )
         );
+
+        // ---------------- Diagnostic Buttons ----------------
+        // Allocate available buttons when testing
 
         // Reset Lidar
         // bButton.whenPressed(new InstantCommand(() -> m_lidarManager.getLidar().reset()));
@@ -150,40 +137,6 @@ public class ButtonManager {
 
         // Print "B Button"
         // bButton.whenPressed(new PrintCommand("B Button"));
-    }
-
-    /**
-     * Creates the sequential command group for stopping the shooter motor and everything that goes with it.
-     */
-    private SequentialCommandGroup getStopShooterMotorGroup() {
-        return new SequentialCommandGroup(
-                new InstantCommand(() -> {
-                    m_acquisitionSubsystem.retractAcquirer();
-                    m_storageSubsystem.stopDrumMotor();
-                    //m_storageSubsystem.stopBarMotor();
-                    m_shooterSubsystem.stopShooterMotor();
-                })
-            );
-    }
-
-    /**
-     * Creates the sequential command group for starting the shooter motor, 
-     * its auto velocity adjustment, and everything that goes with it.
-     */
-    private SequentialCommandGroup getStartShooterMotorGroup() {
-        return new SequentialCommandGroup(
-            //m_acquisitionSubsystem.deployAcquirerGroup(false),
-            new InstantCommand(() -> {
-                //m_acquisitionSubsystem.deployAcquirer(false);
-                m_acquisitionSubsystem.stopAcquirerMotor();
-                m_storageSubsystem.stopDrumMotor();
-                //m_storageSubsystem.stopBarMotor();
-            }),
-            new WaitCommand(0.5) // Wait for acquirer to deploy
-            .andThen(() -> m_shooterSubsystem.startShooterMotor()),
-            new InstantCommand(() -> new ShooterMotorAdjustmentCommand(m_shooterSubsystem).schedule(true))
-            // Must invoke the schedule method directly instead of letting the group do it as the command needs to be able to be interrupted
-        );
     }
 
     public static OI getOI() {

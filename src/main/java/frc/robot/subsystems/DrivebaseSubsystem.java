@@ -244,12 +244,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		}
 		else {
 			if(m_allowDriving) {
-				//m_differentialDrive.arcadeDrive(-Math.max(Math.abs(OI.getXboxLeftJoystickY()), 0.5) * OI.getXboxRightJoystickX(), OI.getXboxLeftJoystickY());
 				m_differentialDrive.curvatureDrive(-OI.getXboxRightJoystickX() * 0.4, OI.getXboxLeftJoystickY(), true);
 			} else {
 				if(Math.abs(OI.getXboxRightJoystickX()) > 0.1 || Math.abs(OI.getXboxLeftJoystickY()) > 0.1) {
-					// System.out.println("RightJoystickX: " + Math.abs(OI.getXboxRightJoystickX()));
-					// System.out.println("LeftJoystickY: " + Math.abs(OI.getXboxLeftJoystickY()));
 					System.out.println("Rumbling because driver is trying to drive when the robot is auto adjusting");
 					RobotContainer.getRumbleCommand(0.5).schedule();
 				}

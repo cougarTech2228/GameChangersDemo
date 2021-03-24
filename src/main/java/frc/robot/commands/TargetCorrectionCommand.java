@@ -100,6 +100,5 @@ public class TargetCorrectionCommand extends CommandBase {
         //m_drivebaseSubsystem.stop();
         m_drivebaseSubsystem.setCoastMode();
         //m_drivebaseSubsystem.allowDriving(true);
-        //new ShooterMotorAdjustmentCommand(RobotContainer.getShooterSubsystem()).schedule(true);
     }
   }

@@ -61,8 +61,6 @@ public class ShooterMotor extends WPI_TalonSRX {
     public void start(ShooterSubsystem shooterSubsystem) {
         double velocity = getFormulaVelocity();
         System.out.println("Setting velocity to: " + velocity);
-        //double velocity = m_velocityEntry.getDouble(1);
-        //System.out.println("Setting velocity to: " + velocity);
         
         set(ControlMode.Velocity, velocity);
 
@@ -79,20 +77,12 @@ public class ShooterMotor extends WPI_TalonSRX {
     public double getFormulaVelocity() {
         double distance = RobotContainer.getLidarManager().getLidarAverage();
 
-        //System.out.println("Distance: " + distance);
-
         if(distance < 275 && distance > 25) { // Arbitrary values that will probably have to be adjusted
-            //double velocity = (-0.0162 * distance * distance * distance) + (9.7771 * distance * distance) - (1846.9 * distance) + 172968; 
             double velocity = (-0.0276 * distance * distance * distance) + (15.206 * distance * distance) - (2620.6 * distance) + 207187; 
             return velocity;
         } else {
             return 0;
         }
-
-        // 81: 80000
-        // 121: 63772
-        // 183: 67500
-        // 241: 73000
         
     }
 }

@@ -28,20 +28,6 @@ public class AcquisitionSubsystem extends SubsystemBase {
     public void periodic() {
 
     }
-
-    // public SequentialCommandGroup deployAcquirerGroup(boolean runAcquirer) {
-    //     return new SequentialCommandGroup(
-    //         new InstantCommand(() -> {
-    //             m_acquirerExtender.set(true);
-    //             m_isAcquirerDeployed = true;
-    //         }),
-    //         new WaitCommand(1),
-    //         new InstantCommand(() -> {
-    //             if(runAcquirer)
-    //                 m_acquisitionMotor.set(-Constants.ACQUIRER_MOTOR_SPEED);
-    //         })
-    //     );
-    // }
     
     /**
      * Deploys the acquirer by setting the solenoid to true

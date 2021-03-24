@@ -161,10 +161,6 @@ public class RobotContainer {
         return new BopperCommand(m_shooterSubsystem);
     }
 
-    public static ShooterMotorAdjustmentCommand getShooterMotorAdjustmentCommand() {
-        return new ShooterMotorAdjustmentCommand(m_shooterSubsystem);
-    }
-
     public static RumbleCommand getRumbleCommand(double time) {
         return new RumbleCommand(time);
     }
