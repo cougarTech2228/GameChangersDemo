@@ -100,6 +100,11 @@ public class RobotContainer {
         m_manualVelocityChooser.addOption("Control Panel", 85000.0);
         m_manualVelocityChooser.addOption("Diagnostic Velocity", 30000.0);
 
+        SmartDashboard.putData("Toggle Recording", new
+         InstantCommand(m_drivebaseSubsystem::ToggleRecording));
+
+        SmartDashboard.putData("Play back", new
+         InstantCommand(m_drivebaseSubsystem::PlayBack));
         /*
         * // Command Buttons SmartDashboard.putData("Cancel all commands", new
         * InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
