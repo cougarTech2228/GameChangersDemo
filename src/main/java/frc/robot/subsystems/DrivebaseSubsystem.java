@@ -6,10 +6,6 @@ import frc.robot.RobotContainer;
 import frc.robot.Toolkit.CT_Gyro;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -34,19 +30,6 @@ import edu.wpi.first.wpilibj.util.Units;
  * DrivebaseSubsystem
  */
 public class DrivebaseSubsystem extends SubsystemBase {
-
-	private class InputLogEntry{
-		InputLogEntry(double x, double y){
-			this.x = x;
-			this.y = y;
-		}
-		double x;
-		double y;
-	}
-
-	private static ArrayList <InputLogEntry> inputLog = new ArrayList<>();
-	private static boolean inputLogging = false;
-	private static boolean playing = false;
 
 	private static final double m_kGearRatio = 12.27;
 
@@ -186,31 +169,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		resetOdometry(new Pose2d());
 
 		m_allowDriving = true;
-
-		Timer timer = new Timer();
-		TimerTask t = new TimerTask() {
-			public void run() {
-				if(m_allowDriving) {
-					if(playing){
-						InputLogEntry entry = inputLog.get(playIndex++);
-						m_differentialDrive.curvatureDrive(entry.x, entry.y, true);
-						if(playIndex == inputLog.size()){
-							playing = false;
-							System.out.println("Play back done");
-						}
-					}
-					else{
-						//m_differentialDrive.arcadeDrive(-Math.max(Math.abs(OI.getXboxLeftJoystickY()), 0.5) * OI.getXboxRightJoystickX(), OI.getXboxLeftJoystickY());
-						m_differentialDrive.curvatureDrive(-OI.getXboxRightJoystickX() * 0.4, OI.getXboxLeftJoystickY(), true);
-					}
-
-					if (inputLogging == true){
-						inputLog.add(new InputLogEntry(-OI.getXboxRightJoystickX() * 0.4, OI.getXboxLeftJoystickY()));
-					}
-				}
-			}
-		};
-		timer.schedule(t, 1000, 5);
 	}
 
 	/* Zero all sensors used */
@@ -274,7 +232,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		return (m_leftMaster.get() + m_rightMaster.get()) / 2;
 	}
 
-	int playIndex = 0;
 	@Override
 	public void periodic() {
 		if (RobotState.isAutonomous()) {
@@ -286,14 +243,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			-m_rightMaster.getSelectedSensorPosition(Constants.PID_PRIMARY) * m_kEdgesToMetersAdjustment);
 		}
 		else {
-			if(!m_allowDriving) {
+			if(m_allowDriving) {
+				m_differentialDrive.curvatureDrive(-OI.getXboxRightJoystickX() * 0.4, OI.getXboxLeftJoystickY(), true);
+			} else {
 				if(Math.abs(OI.getXboxRightJoystickX()) > 0.1 || Math.abs(OI.getXboxLeftJoystickY()) > 0.1) {
-					// System.out.println("RightJoystickX: " + Math.abs(OI.getXboxRightJoystickX()));
-					// System.out.println("LeftJoystickY: " + Math.abs(OI.getXboxLeftJoystickY()));
 					System.out.println("Rumbling because driver is trying to drive when the robot is auto adjusting");
 					RobotContainer.getRumbleCommand(0.5).schedule();
 				}
 			}
+			
 		}
 
 		m_differentialDrive.feed();
@@ -337,9 +295,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	 * @return Pose2d
 	 */
 	public Pose2d getCurrentPose() {
-		m_savedPose = m_odometry.update(m_gyro.getHeading(),
-			-m_leftMaster.getSelectedSensorPosition(Constants.PID_PRIMARY) * m_kEdgesToMetersAdjustment,
-			-m_rightMaster.getSelectedSensorPosition(Constants.PID_PRIMARY) * m_kEdgesToMetersAdjustment);
 		return m_savedPose;
 	}
 
@@ -428,28 +383,5 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public void turnRightOnAxis(double speed) {
 		m_rightMaster.set(speed);
 		m_leftMaster.set(-speed);
-	}
-
-	public void ToggleRecording(){
-		inputLogging = !inputLogging;
-
-		if (inputLogging){
-			System.out.println("Start input logging");
-
-			inputLog.clear();
-		}
-		else{
-			System.out.println("Stop input logging");
-			System.out.println("Input Log size: " + inputLog.size());
-		}
-	}
-
-	public void PlayBack(){
-		playing = !playing;
-
-		if(playing){
-			playIndex = 0;
-			System.out.println("Starts ");
-		}
 	}
 }
