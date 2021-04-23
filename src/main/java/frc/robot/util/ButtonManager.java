@@ -98,6 +98,7 @@ public class ButtonManager {
         aButton.whenPressed(
             new SequentialCommandGroup(
                 new InstantCommand(() -> {
+                    OI.setXboxRumbleStop();
                     m_shooterSubsystem.setIsShooting(false);
                     m_storageSubsystem.stopDrumMotor();
                     m_shooterSubsystem.stopShooterMotor();

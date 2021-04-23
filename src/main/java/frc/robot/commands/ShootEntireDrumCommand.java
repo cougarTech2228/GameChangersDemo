@@ -32,12 +32,12 @@ public class ShootEntireDrumCommand extends SequentialCommandGroup {
                 //System.out.println("Shoot entire drum");
                 shooterSubsystem.setIsShooting(true);
                 storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_FAST);
-            }),
-            waitBopIndex(),
-            waitBopIndex(),
-            waitBopIndex(),
-            waitBopIndex(),
-            waitBopIndex()
+            })//,
+            // waitBopIndex(),
+            // waitBopIndex(),
+            // waitBopIndex(),
+            // waitBopIndex(),
+            // waitBopIndex()
             .andThen(() -> {
                 shooterSubsystem.setIsShooting(false);
                 storageSubsystem.stopDrumMotor();
@@ -56,4 +56,5 @@ public class ShootEntireDrumCommand extends SequentialCommandGroup {
             .andThen(() -> m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_FAST))
         );
     }
+
 }

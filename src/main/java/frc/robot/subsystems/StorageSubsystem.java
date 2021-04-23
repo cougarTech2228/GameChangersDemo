@@ -7,6 +7,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Spark;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.Toolkit.CT_DigitalInput;
 
 public class StorageSubsystem extends SubsystemBase {
@@ -17,15 +18,25 @@ public class StorageSubsystem extends SubsystemBase {
     private ShooterSubsystem m_shooterSubsystem;
     private boolean m_doIndexing;
     private Compressor m_compressor;
+    private int m_timesDrumsStopped;
     
     public StorageSubsystem(ShooterSubsystem shooterSubsystem) {
         register();
+
+        m_timesDrumsStopped = 0;
 
         m_drumSparkMotor = new Spark(Constants.DRUM_SPARK_PWM_ID);
         m_spinningBarMotor = new WPI_TalonSRX(Constants.SPINNING_BAR_MOTOR_CAN_ID);
 
         m_drumShooterPositionInput = new CT_DigitalInput(Constants.SHOOTER_POSITION_DIO);
-        m_drumShooterPositionInput.setAutomaticInterrupt(() -> stopDrumMotor(), true);
+        m_drumShooterPositionInput.setAutomaticInterrupt(() -> {
+            //m_timesDrumsStopped++;
+            stopDrumMotor();
+            // if(m_timesDrumsStopped <= 3) {
+            //     RobotContainer.getBopperCommand()
+            //     .andThen(() -> startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_FAST)).schedule();
+            // }
+        }, true);
         m_compressor = new Compressor();
         
         m_doIndexing = false;
@@ -44,6 +55,10 @@ public class StorageSubsystem extends SubsystemBase {
 
     public Compressor getCompressor() {
         return m_compressor;
+    }
+
+    public Spark getDrumMotor() {
+        return m_drumSparkMotor;
     }
 
     /**

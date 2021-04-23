@@ -153,6 +153,10 @@ public class RobotContainer {
 
     // Shooting Commands
 
+    public static ShootThreeDrumCommand getShootThreeDrumCommand() {
+        return new ShootThreeDrumCommand(m_shooterSubsystem, m_storageSubsystem, m_acquisitionSubsystem);
+    }
+
     public static ShootEntireDrumCommand getShootEntireDrumCommand() {
         return new ShootEntireDrumCommand(m_shooterSubsystem, m_storageSubsystem, m_acquisitionSubsystem);
     }

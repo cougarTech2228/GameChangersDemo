@@ -4,7 +4,10 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.AcquisitionSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
@@ -79,7 +82,12 @@ public class TargetCorrectionCommand extends CommandBase {
                     }
 
                     if(RobotContainer.getShooterSubsystem().isShooterMotorUpToSpeed()) {
-                        RobotContainer.getShootEntireDrumCommand().schedule();
+                        //RobotContainer.getShootEntireDrumCommand().schedule();
+                        new SequentialCommandGroup(
+                            new WaitCommand(0.25),
+                            RobotContainer.getShootThreeDrumCommand()
+                        ).schedule();
+                        //RobotContainer.getShootThreeDrumCommand().schedule();
                         return true;
                     } else {
                         //System.out.println("Waiting for shooter motor to come up to speed");

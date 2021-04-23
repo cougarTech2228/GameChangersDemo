@@ -78,7 +78,7 @@ public class ShooterMotor extends WPI_TalonSRX {
         double distance = RobotContainer.getLidarManager().getLidarAverage();
 
         if(distance < 275 && distance > 25) { // Arbitrary values that will probably have to be adjusted
-            double velocity = (-0.0276 * distance * distance * distance) + (15.206 * distance * distance) - (2620.6 * distance) + 207187; 
+            double velocity = (-0.029 * distance * distance * distance) + (15.725 * distance * distance) - (2683.6 * distance) + 209603; 
             return velocity;
         } else {
             return 0;

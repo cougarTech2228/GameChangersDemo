@@ -33,8 +33,8 @@ public class ShooterSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Is shooter motor up to speed", m_isMotorUpToSpeed);
 
         m_isMotorUpToSpeed = false;
-        if(m_isShooting) { // + 4000 is if the sensor is a bit low, this is mainly to prevent the driver from immediately starting it
-            if((m_shooterMotor.getSelectedSensorVelocity() + 4000) >= m_shooterMotor.getFormulaVelocity()) {
+        if(m_isShooting) {
+            if((m_shooterMotor.getSelectedSensorVelocity()) >= m_shooterMotor.getFormulaVelocity()) {
                 m_isMotorUpToSpeed = true;
             } else {
                 m_isMotorUpToSpeed = false;
