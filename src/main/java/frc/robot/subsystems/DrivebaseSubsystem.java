@@ -3,7 +3,9 @@ package frc.robot.subsystems;
 import frc.robot.Constants;
 import frc.robot.OI;
 import frc.robot.RobotContainer;
+import frc.robot.Toolkit.CT_DigitalInput;
 import frc.robot.Toolkit.CT_Gyro;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix.ErrorCode;
@@ -13,6 +15,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
+import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.controller.PIDController;
@@ -24,6 +27,7 @@ import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
 
 /**
@@ -92,7 +96,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private Pose2d m_initialPose = new Pose2d();
 
-	private boolean m_allowDriving;
+	private boolean m_isChildMode;
+	private DigitalOutput m_childModeLED;
 
 	public DrivebaseSubsystem() {
 
@@ -168,7 +173,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		m_odometry = new DifferentialDriveOdometry(m_gyro.getHeading());
 		resetOdometry(new Pose2d());
 
-		m_allowDriving = true;
+		m_isChildMode = false;
+		SmartDashboard.putData("Child Mode", new InstantCommand(this::childMode));
+		m_childModeLED = new DigitalOutput(0);
 	}
 
 	/* Zero all sensors used */
@@ -211,22 +218,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		return 0.0;
 	}
 
-	/**
-	 * Arcade drive that takes in the left joystick for forward and the right joystick for turn
-	 * 
-	 * Uses the deadband and the PercentOutput control mode
-	 */
-	// private void arcadeDrive() {
-	// 	double forward = OI.getXboxLeftJoystickY();
-	// 	double turn = OI.getXboxRightJoystickX(); 
-
-	// 	forward = deadband(forward);
-	// 	turn = deadband(turn) * 0.3; // Where did .65 come from??????
-
-	// 	m_leftMaster.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -turn); 
-	// 	m_rightMaster.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, +turn);
-	// }
-
 	// Only used by ShooterSubsystem in teleop
 	public double getCurrentMoveSpeedAverage() {
 		return (m_leftMaster.get() + m_rightMaster.get()) / 2;
@@ -234,32 +225,24 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		if (RobotState.isAutonomous()) {
-			//System.out.println("LeftMasterEncoderValue: " + -m_leftMaster.getSelectedSensorPosition(Constants.PID_PRIMARY));
-			//System.out.println("RightMasterEncoderValue: " + -m_rightMaster.getSelectedSensorPosition(Constants.PID_PRIMARY));
+		SmartDashboard.putBoolean("Is in child mode", m_isChildMode);
 
-			m_savedPose = m_odometry.update(m_gyro.getHeading(), 
-			-m_leftMaster.getSelectedSensorPosition(Constants.PID_PRIMARY) * m_kEdgesToMetersAdjustment, 
-			-m_rightMaster.getSelectedSensorPosition(Constants.PID_PRIMARY) * m_kEdgesToMetersAdjustment);
+		if(m_isChildMode) {
+			m_differentialDrive.curvatureDrive(-OI.getXboxRightJoystickX() * 0.175, OI.getXboxLeftJoystickY() * 0.25, true);
+		} else {
+			m_differentialDrive.curvatureDrive(-OI.getXboxRightJoystickX() * 0.4, OI.getXboxLeftJoystickY(), true);
 		}
-		else {
-			if(m_allowDriving) {
-				m_differentialDrive.curvatureDrive(-OI.getXboxRightJoystickX() * 0.4, OI.getXboxLeftJoystickY(), true);
-			} else {
-				if(Math.abs(OI.getXboxRightJoystickX()) > 0.1 || Math.abs(OI.getXboxLeftJoystickY()) > 0.1) {
-					System.out.println("Rumbling because driver is trying to drive when the robot is auto adjusting");
-					RobotContainer.getRumbleCommand(0.5).schedule();
-				}
-			}
-			
-		}
-
 		m_differentialDrive.feed();
 	}
 
-
-	public void allowDriving(boolean allowDriving) {
-		m_allowDriving = allowDriving;
+	public void childMode() {
+		if(m_isChildMode) {
+			m_childModeLED.set(false);
+			m_isChildMode = false;
+		} else {
+			m_childModeLED.set(true);
+			m_isChildMode = true;
+		}
 	}
 
 	public void setOutputVolts(double leftVolts, double rightVolts) {

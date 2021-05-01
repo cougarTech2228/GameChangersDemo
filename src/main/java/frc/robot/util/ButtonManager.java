@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import java.util.Map;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
@@ -11,10 +12,11 @@ import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.Constants;
 import frc.robot.OI;
 import frc.robot.RobotContainer;
-import frc.robot.commands.TargetCorrectionCommand;
+import frc.robot.commands.ShootEntireDrumCommand;
 import frc.robot.subsystems.AcquisitionSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.StorageSubsystem;
+import frc.robot.util.ShooterMotor.ShootingType;
 
 public class ButtonManager {
 
@@ -46,6 +48,9 @@ public class ButtonManager {
         Button dpadDown = new Button(OI::getXboxDpadDown);
         Button dpadLeft = new Button(OI::getXboxDpadLeft);
         Button dpadRight = new Button(OI::getXboxDpadRight);
+
+        Button startButton = new Button(OI::getXboxStartButton);
+        Button backButton = new Button(OI::getXboxBackButton);
 
         // Reverses the acquirer only if the acquirer is deployed
         rightTrigger.whenPressed(
@@ -83,16 +88,26 @@ public class ButtonManager {
             ).withName("Acquirer Select Command")
         );
 
-        bButton.toggleWhenPressed(
+        xButton.toggleWhenPressed(
             new SequentialCommandGroup(
-                new InstantCommand(() -> m_acquisitionSubsystem.deployAcquirer(true)),
-                new WaitCommand(0.5),
-                new TargetCorrectionCommand(
-                    RobotContainer.getDrivebaseSubsystem(), 
-                    RobotContainer.getAcquisitionSubsystem(),
-                    RobotContainer.getShooterSubsystem()
-                ).beforeStarting(() -> m_storageSubsystem.stopDrumMotor())
-            ), true
+                new InstantCommand(() -> {
+                    m_acquisitionSubsystem.deployAcquirer(false);
+                    m_storageSubsystem.stopDrumMotor();
+                    m_shooterSubsystem.getShooterMotor().start(m_shooterSubsystem);
+                }),
+                new ShootEntireDrumCommand(m_shooterSubsystem, m_storageSubsystem, m_acquisitionSubsystem, 5)
+            )
+        );
+
+        yButton.toggleWhenPressed(
+            new SequentialCommandGroup(
+                new InstantCommand(() -> {
+                    m_acquisitionSubsystem.deployAcquirer(false);
+                    m_storageSubsystem.stopDrumMotor();
+                    m_shooterSubsystem.getShooterMotor().start(m_shooterSubsystem);
+                }),
+                new ShootEntireDrumCommand(m_shooterSubsystem, m_storageSubsystem, m_acquisitionSubsystem, 1)
+            )
         );
 
         aButton.whenPressed(
@@ -102,12 +117,53 @@ public class ButtonManager {
                     m_shooterSubsystem.setIsShooting(false);
                     m_storageSubsystem.stopDrumMotor();
                     m_shooterSubsystem.stopShooterMotor();
-                    RobotContainer.getDrivebaseSubsystem().allowDriving(true);
                     RobotContainer.getDrivebaseSubsystem().stop();
                     CommandScheduler.getInstance().cancelAll();
                 })
             )
         );
+
+        dpadUp.whenPressed(new InstantCommand(() -> {
+            if(m_shooterSubsystem.getShooterMotor().getShootingType() == ShootingType.LobShoot) {
+                if(m_shooterSubsystem.m_lobDistance == Constants.LOB_SHOOT_MAX_DISTANCE) { // Cant go above max distance (16)
+                    RobotContainer.getRumbleCommand(0.1).schedule();; // 
+                } else {
+                    m_shooterSubsystem.m_lobDistance += 5;
+                }
+            } else {
+                if(m_shooterSubsystem.m_targetDistance == Constants.TARGET_SHOOT_MAX_DISTANCE) { // Cant go above max distance (30)
+                    RobotContainer.getRumbleCommand(0.1).schedule();; // 
+                } else {
+                    m_shooterSubsystem.m_targetDistance += 5;
+                }
+            }
+        }));
+
+        dpadDown.whenPressed(new InstantCommand(() -> {
+            if(m_shooterSubsystem.getShooterMotor().getShootingType() == ShootingType.LobShoot) {
+                if(m_shooterSubsystem.m_lobDistance == Constants.LOB_SHOOT_MIN_DISTANCE) {
+                    RobotContainer.getRumbleCommand(0.1).schedule();;
+                } else {
+                    m_shooterSubsystem.m_lobDistance -=5;
+                }
+            } else {
+                if(m_shooterSubsystem.m_targetDistance == Constants.TARGET_SHOOT_MIN_DISTANCE) {
+                    RobotContainer.getRumbleCommand(0.1).schedule();;
+                } else {
+                    m_shooterSubsystem.m_targetDistance -=5;
+                }
+            }
+        }));
+
+        bButton.whenPressed(new InstantCommand(() -> m_shooterSubsystem.getShooterMotor().alternateShootingType()));
+
+        backButton.whenPressed(new InstantCommand(() -> {
+            m_storageSubsystem.getCompressor().stop();
+        }));
+
+        startButton.whenPressed(new InstantCommand(() -> {
+            m_storageSubsystem.getCompressor().start();
+        }));
 
         // ---------------- Diagnostic Buttons ----------------
         // Allocate available buttons when testing
@@ -119,10 +175,10 @@ public class ButtonManager {
         //bButton.whenPressed(new InstantCommand(() -> m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_SLOW)).beforeStarting(() -> m_storageSubsystem.doIndexing(true)));
         
         // Start Drum
-        //xButton.whenPressed(new InstantCommand(() -> m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_VERY_SLOW)));
+        //bButton.whenPressed(new InstantCommand(() -> m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_SLOW)));
 
         // Stop Drum
-        //yButton.whenPressed(new InstantCommand(() -> m_storageSubsystem.stopDrumMotor()));
+        //aButton.whenPressed(new InstantCommand(() -> m_storageSubsystem.stopDrumMotor()));
 
         // Start Bar Motor
         // bButton.whenPressed(new InstantCommand(() -> m_storageSubsystem.startBarMotor()));

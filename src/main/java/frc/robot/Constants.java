@@ -165,4 +165,9 @@ public final class Constants {
 	public final static int kSlot_MotProf = SLOT_3;
 
 	public static final double ACQUIRER_MOTOR_SPEED = 0.70;
+
+	public static final int LOB_SHOOT_MIN_DISTANCE = 5;
+	public static final int LOB_SHOOT_MAX_DISTANCE = 20;
+	public static final int TARGET_SHOOT_MIN_DISTANCE = 10;
+	public static final int TARGET_SHOOT_MAX_DISTANCE = 25;
 }

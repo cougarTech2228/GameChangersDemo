@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -20,8 +21,7 @@ public class RumbleCommand extends SequentialCommandGroup {
 
     public RumbleCommand(double time) {
         addCommands (
-            new PrintCommand("Rumble")
-            .andThen(() -> OI.setXboxRumbleSpeed(Constants.XBOX_RUMBLE_SPEED)),
+            new InstantCommand(() -> OI.setXboxRumbleSpeed(Constants.XBOX_RUMBLE_SPEED)),
             new WaitCommand(time)
             .andThen(() -> OI.setXboxRumbleStop())
         );

@@ -1,10 +1,10 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
 package frc.robot.commands;
 
-import java.util.Map;
-
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.SelectCommand;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
@@ -13,48 +13,66 @@ import frc.robot.subsystems.AcquisitionSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.StorageSubsystem;
 
-/**
- * ShootEntireDrumCommand
- * 
- * This command shoots the entire drum. It calls tryToShootOnce 5 times.
- */
-public class ShootEntireDrumCommand extends SequentialCommandGroup {
-    @SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
+public class ShootEntireDrumCommand extends CommandBase {
+  /** Creates a new ShootThreeDrumCommand. */
 
-    private StorageSubsystem m_storageSubsystem;
+  private StorageSubsystem m_storageSubsystem;
+  private ShooterSubsystem m_shooterSubsystem;
+  private AcquisitionSubsystem m_acquisitionSubsystem;
+  private int m_timesShot;
+  private boolean m_isBopping;
+  private int m_numOfShots;
 
-    public ShootEntireDrumCommand(ShooterSubsystem shooterSubsystem, StorageSubsystem storageSubsystem, AcquisitionSubsystem acquisitionSubsystem) {
+  public ShootEntireDrumCommand(ShooterSubsystem shooterSubsystem, StorageSubsystem storageSubsystem, AcquisitionSubsystem acquisitionSubsystem, int numOfShots) {
+    m_storageSubsystem = storageSubsystem;
+    m_shooterSubsystem = shooterSubsystem;
+    m_acquisitionSubsystem = acquisitionSubsystem;
+    m_numOfShots = numOfShots;
+  }
 
-        m_storageSubsystem = storageSubsystem;
+  // Called when the command is initially scheduled.
+  @Override
+  public void initialize() {
+    m_shooterSubsystem.setIsShooting(true);
+    m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_FAST);
+    m_timesShot = 0;
+    m_isBopping = false;
+  }
 
-        addCommands(
-            new InstantCommand(() -> {
-                //System.out.println("Shoot entire drum");
-                shooterSubsystem.setIsShooting(true);
-                storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_FAST);
-            })//,
-            // waitBopIndex(),
-            // waitBopIndex(),
-            // waitBopIndex(),
-            // waitBopIndex(),
-            // waitBopIndex()
-            .andThen(() -> {
-                shooterSubsystem.setIsShooting(false);
-                storageSubsystem.stopDrumMotor();
-                shooterSubsystem.stopShooterMotor();
-                RobotContainer.getDrivebaseSubsystem().allowDriving(true);
-            })
-        );
-        // Use addRequirements() here to declare subsystem dependencies.
-        //addRequirements(shooterSubsystem);
+  // Called every time the scheduler runs while the command is scheduled.
+  @Override
+  public void execute() {
+    if(m_shooterSubsystem.isShooterMotorUpToSpeed()) {
+      if(!m_isBopping && m_storageSubsystem.getDrumMotor().getSpeed() == 0) {
+        System.out.println("Running the thing");
+        m_isBopping = true;
+        new SequentialCommandGroup(
+          RobotContainer.getBopperCommand(),//.andThen(() -> m_isBopping = false),
+          new WaitCommand(0.3)
+          .andThen(() -> {
+            m_isBopping = false;
+            m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_FAST);
+            m_timesShot++;
+          })
+        ).schedule();
+      }
     }
+  }
 
-    public SequentialCommandGroup waitBopIndex() {
-        return new SequentialCommandGroup(
-            new WaitCommand(Constants.TIME_BETWEEN_SHOTS),
-            RobotContainer.getBopperCommand()
-            .andThen(() -> m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_FAST))
-        );
+  // Called once the command ends or is interrupted.
+  @Override
+  public void end(boolean interrupted) {
+    m_shooterSubsystem.setIsShooting(false);
+    m_storageSubsystem.stopDrumMotor();
+    m_shooterSubsystem.stopShooterMotor();
+  }
+
+  // Returns true when the command should end.
+  @Override
+  public boolean isFinished() {
+    if(m_timesShot == m_numOfShots) {
+      return true;
     }
-
+    return false;
+  }
 }

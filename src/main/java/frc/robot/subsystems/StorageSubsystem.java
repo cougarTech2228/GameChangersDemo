@@ -18,12 +18,9 @@ public class StorageSubsystem extends SubsystemBase {
     private ShooterSubsystem m_shooterSubsystem;
     private boolean m_doIndexing;
     private Compressor m_compressor;
-    private int m_timesDrumsStopped;
     
     public StorageSubsystem(ShooterSubsystem shooterSubsystem) {
         register();
-
-        m_timesDrumsStopped = 0;
 
         m_drumSparkMotor = new Spark(Constants.DRUM_SPARK_PWM_ID);
         m_spinningBarMotor = new WPI_TalonSRX(Constants.SPINNING_BAR_MOTOR_CAN_ID);

@@ -19,13 +19,22 @@ import frc.robot.subsystems.ShooterSubsystem;
 public class ShooterMotor extends WPI_TalonSRX {
 
     private boolean m_encodersAreAvailable;
-    //private NetworkTableEntry m_velocityEntry;
+    private ShooterSubsystem m_shooterSubsystem;
+    private NetworkTableEntry m_velocityEntry;
 
-    public ShooterMotor() {
+    private ShootingType m_shootingType;
+
+    public enum ShootingType {
+        TargetShoot, // Shooting at the target
+        LobShoot // Shooting for kids to catch the power cells
+    }
+
+    public ShooterMotor(ShooterSubsystem shooterSubsystem) {
         
         super(Constants.SHOOTER_CAN_ID);
+        m_shooterSubsystem = shooterSubsystem;
         
-        //m_velocityEntry = Shuffleboard.getTab("Shooter Velocity Adjuster").add("Shooter Velocity", 1).getEntry();
+        m_velocityEntry = Shuffleboard.getTab("Shooter Velocity Adjuster").add("Shooter Velocity", 1).getEntry();
         
         configFactoryDefault();
 
@@ -53,36 +62,70 @@ public class ShooterMotor extends WPI_TalonSRX {
 		enableCurrentLimit(true);
 
         System.out.println("Are encoders available for shooter motor? " + m_encodersAreAvailable);
+
+        m_shootingType = ShootingType.TargetShoot;
+    }
+
+    public ShootingType getShootingType() {
+        return m_shootingType;
+    }
+
+    public void alternateShootingType() {
+        if(m_shootingType == ShootingType.TargetShoot) {
+            m_shootingType = ShootingType.LobShoot;
+        } else {
+            m_shootingType = ShootingType.TargetShoot;
+        }
     }
 
     /**
      * Start the shooter motor
      */
     public void start(ShooterSubsystem shooterSubsystem) {
-        double velocity = getFormulaVelocity();
+        double velocity = getVelocity();
         System.out.println("Setting velocity to: " + velocity);
         
         set(ControlMode.Velocity, velocity);
 
-        if(velocity == 0) { // If the distance was outside the boundaries
-            RobotContainer.getRumbleCommand(0.5).schedule();
-        } else {
-            shooterSubsystem.setIsShooting(true);
-        }
-
-        // Shuffleboard velocity
-        // set(ControlMode.Velocity, m_velocityEntry.getDouble(1));
     }
 
-    public double getFormulaVelocity() {
-        double distance = RobotContainer.getLidarManager().getLidarAverage();
+    public double getVelocity() {
+        if(m_shootingType == ShootingType.TargetShoot) {
+            int distance = m_shooterSubsystem.m_targetDistance;
 
-        if(distance < 275 && distance > 25) { // Arbitrary values that will probably have to be adjusted
-            double velocity = (-0.029 * distance * distance * distance) + (15.725 * distance * distance) - (2683.6 * distance) + 209603; 
-            return velocity;
+            switch(distance) {
+                case 10: return 67156;
+                case 15: return 66556;
+                case 20: return 72840;
+                case 25: return 82500;
+                default: System.out.println("Incorrect distance created"); return 0; // Keep this 0 
+            }
         } else {
-            return 0;
+            int distance = m_shooterSubsystem.m_lobDistance;
+
+            switch(distance) {
+                case 5: return 40000;
+                case 10: return 45000;
+                case 15: return 50000;
+                case 20: return 55000;
+                default: System.out.println("Incorrect distance created"); return 0; // Keep this 0 
+            }
         }
         
+        // Shuffleboard velocity
+        //return m_velocityEntry.getDouble(1);
+        
     }
+
+    // public double getFormulaVelocity() {
+    //     double distance = RobotContainer.getLidarManager().getLidarAverage();
+
+    //     if(distance < 275 && distance > 25) { // Arbitrary values that will probably have to be adjusted
+    //         double velocity = (-0.029 * distance * distance * distance) + (15.725 * distance * distance) - (2683.6 * distance) + 209603; 
+    //         return velocity;
+    //     } else {
+    //         return 0;
+    //     }
+        
+    // }
 }
