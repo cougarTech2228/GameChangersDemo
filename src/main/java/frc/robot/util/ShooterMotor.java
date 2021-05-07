@@ -3,8 +3,6 @@ package frc.robot.util;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 //import edu.wpi.first.networktables.NetworkTableEntry;
 //import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -13,14 +11,13 @@ import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.ShooterSubsystem;
 
 public class ShooterMotor extends WPI_TalonSRX {
 
     private boolean m_encodersAreAvailable;
     private ShooterSubsystem m_shooterSubsystem;
-    private NetworkTableEntry m_velocityEntry;
+    //private NetworkTableEntry m_velocityEntry;
 
     private ShootingType m_shootingType;
 
@@ -34,7 +31,7 @@ public class ShooterMotor extends WPI_TalonSRX {
         super(Constants.SHOOTER_CAN_ID);
         m_shooterSubsystem = shooterSubsystem;
         
-        m_velocityEntry = Shuffleboard.getTab("Shooter Velocity Adjuster").add("Shooter Velocity", 1).getEntry();
+        //m_velocityEntry = Shuffleboard.getTab("Shooter Velocity Adjuster").add("Shooter Velocity", 1).getEntry();
         
         configFactoryDefault();
 

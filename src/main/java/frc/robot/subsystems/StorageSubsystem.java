@@ -7,7 +7,6 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Spark;
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
 import frc.robot.Toolkit.CT_DigitalInput;
 
 public class StorageSubsystem extends SubsystemBase {

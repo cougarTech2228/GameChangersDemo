@@ -7,28 +7,12 @@
 
 package frc.robot;
 
-import java.util.Map;
-
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.SelectCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
-import frc.robot.Toolkit.CT_CommandToggler;
 import frc.robot.util.ButtonManager;
 import frc.robot.util.LidarManager;
-import frc.robot.util.ShooterMotor;
-import frc.robot.Toolkit.CT_CommandToggler.CommandState;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -120,8 +104,8 @@ public class RobotContainer {
 
     // Shooting Commandss
 
-    public static ShootEntireDrumCommand getShootEntireDrumCommand(int numOfShots) {
-        return new ShootEntireDrumCommand(m_shooterSubsystem, m_storageSubsystem, m_acquisitionSubsystem, numOfShots);
+    public static ShootCommand getShootCommand(int numOfShots) {
+        return new ShootCommand(m_shooterSubsystem, m_storageSubsystem, numOfShots);
     }
 
     public static BopperCommand getBopperCommand() {

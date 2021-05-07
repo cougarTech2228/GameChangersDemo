@@ -9,24 +9,21 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.AcquisitionSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.StorageSubsystem;
 
-public class ShootEntireDrumCommand extends CommandBase {
+public class ShootCommand extends CommandBase {
   /** Creates a new ShootThreeDrumCommand. */
 
   private StorageSubsystem m_storageSubsystem;
   private ShooterSubsystem m_shooterSubsystem;
-  private AcquisitionSubsystem m_acquisitionSubsystem;
   private int m_timesShot;
   private boolean m_isBopping;
   private int m_numOfShots;
 
-  public ShootEntireDrumCommand(ShooterSubsystem shooterSubsystem, StorageSubsystem storageSubsystem, AcquisitionSubsystem acquisitionSubsystem, int numOfShots) {
+  public ShootCommand(ShooterSubsystem shooterSubsystem, StorageSubsystem storageSubsystem, int numOfShots) {
     m_storageSubsystem = storageSubsystem;
     m_shooterSubsystem = shooterSubsystem;
-    m_acquisitionSubsystem = acquisitionSubsystem;
     m_numOfShots = numOfShots;
   }
 

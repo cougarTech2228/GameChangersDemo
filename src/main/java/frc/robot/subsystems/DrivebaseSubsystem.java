@@ -2,28 +2,22 @@ package frc.robot.subsystems;
 
 import frc.robot.Constants;
 import frc.robot.OI;
-import frc.robot.RobotContainer;
-import frc.robot.Toolkit.CT_DigitalInput;
 import frc.robot.Toolkit.CT_Gyro;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix.ErrorCode;
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
@@ -93,8 +87,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private PIDController m_leftPIDController = new PIDController(m_pValue, 0, 0);
 	private PIDController m_rightPIDController = new PIDController(m_pValue, 0, 0);
-
-	private Pose2d m_initialPose = new Pose2d();
 
 	private boolean m_isChildMode;
 	private DigitalOutput m_childModeLED;
@@ -203,19 +195,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			DriverStation.reportError("Failed to configure TalonSRX encoders!!", false);
 			System.out.println("Encoders aren't available");
 		}
-	}
-	
-	private double deadband(final double value) {
-		/* Upper deadband */
-		if (value >= 0.1)
-			return value;
-
-		/* Lower deadband */
-		if (value <= -0.1)
-			return value;
-
-		/* Inside deadband */
-		return 0.0;
 	}
 
 	// Only used by ShooterSubsystem in teleop
@@ -342,10 +321,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public void resetHeading() {
 		m_gyro.resetYaw();
-	}
-
-	public void setInitialPose(Pose2d pose){
-		m_initialPose = pose;
 	}
 
 	public void turnLeft(double speed){

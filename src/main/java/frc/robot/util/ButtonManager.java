@@ -2,17 +2,14 @@ package frc.robot.util;
 
 import java.util.Map;
 
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.Constants;
 import frc.robot.OI;
 import frc.robot.RobotContainer;
-import frc.robot.commands.ShootEntireDrumCommand;
 import frc.robot.subsystems.AcquisitionSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.StorageSubsystem;
@@ -95,7 +92,7 @@ public class ButtonManager {
                     m_storageSubsystem.stopDrumMotor();
                     m_shooterSubsystem.getShooterMotor().start(m_shooterSubsystem);
                 }),
-                new ShootEntireDrumCommand(m_shooterSubsystem, m_storageSubsystem, m_acquisitionSubsystem, 5)
+                RobotContainer.getShootCommand(5)
             )
         );
 
@@ -106,7 +103,7 @@ public class ButtonManager {
                     m_storageSubsystem.stopDrumMotor();
                     m_shooterSubsystem.getShooterMotor().start(m_shooterSubsystem);
                 }),
-                new ShootEntireDrumCommand(m_shooterSubsystem, m_storageSubsystem, m_acquisitionSubsystem, 1)
+                RobotContainer.getShootCommand(1)
             )
         );
 
@@ -128,12 +125,14 @@ public class ButtonManager {
                 if(m_shooterSubsystem.m_lobDistance == Constants.LOB_SHOOT_MAX_DISTANCE) { // Cant go above max distance (16)
                     RobotContainer.getRumbleCommand(0.1).schedule();; // 
                 } else {
+                    m_shooterSubsystem.getLEDStrip().reset();
                     m_shooterSubsystem.m_lobDistance += 5;
                 }
             } else {
                 if(m_shooterSubsystem.m_targetDistance == Constants.TARGET_SHOOT_MAX_DISTANCE) { // Cant go above max distance (30)
                     RobotContainer.getRumbleCommand(0.1).schedule();; // 
                 } else {
+                    m_shooterSubsystem.getLEDStrip().reset();
                     m_shooterSubsystem.m_targetDistance += 5;
                 }
             }
@@ -144,12 +143,14 @@ public class ButtonManager {
                 if(m_shooterSubsystem.m_lobDistance == Constants.LOB_SHOOT_MIN_DISTANCE) {
                     RobotContainer.getRumbleCommand(0.1).schedule();;
                 } else {
+                    m_shooterSubsystem.getLEDStrip().reset();
                     m_shooterSubsystem.m_lobDistance -=5;
                 }
             } else {
                 if(m_shooterSubsystem.m_targetDistance == Constants.TARGET_SHOOT_MIN_DISTANCE) {
                     RobotContainer.getRumbleCommand(0.1).schedule();;
                 } else {
+                    m_shooterSubsystem.getLEDStrip().reset();
                     m_shooterSubsystem.m_targetDistance -=5;
                 }
             }
