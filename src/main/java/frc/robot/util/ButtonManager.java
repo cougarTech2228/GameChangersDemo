@@ -11,6 +11,7 @@ import frc.robot.Constants;
 import frc.robot.OI;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.AcquisitionSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.StorageSubsystem;
 import frc.robot.util.ShooterMotor.ShootingType;
@@ -23,11 +24,13 @@ public class ButtonManager {
     private ShooterSubsystem m_shooterSubsystem;
     private StorageSubsystem m_storageSubsystem;
     private AcquisitionSubsystem m_acquisitionSubsystem;
+    private LEDSubsystem m_ledSubsystem;
     
-    public ButtonManager(ShooterSubsystem shooterSubsystem, StorageSubsystem storageSubsystem, AcquisitionSubsystem acquisitionSubsystem) {
+    public ButtonManager(ShooterSubsystem shooterSubsystem, StorageSubsystem storageSubsystem, AcquisitionSubsystem acquisitionSubsystem, LEDSubsystem ledSubsystem) {
         m_shooterSubsystem = shooterSubsystem;
         m_storageSubsystem = storageSubsystem;
         m_acquisitionSubsystem = acquisitionSubsystem;
+        m_ledSubsystem = ledSubsystem;
     }
 
     public void configureButtonBindings() {
@@ -125,14 +128,14 @@ public class ButtonManager {
                 if(m_shooterSubsystem.m_lobDistance == Constants.LOB_SHOOT_MAX_DISTANCE) { // Cant go above max distance (16)
                     RobotContainer.getRumbleCommand(0.1).schedule();; // 
                 } else {
-                    m_shooterSubsystem.getLEDStrip().reset();
+                    m_ledSubsystem.getLEDStrip().reset();
                     m_shooterSubsystem.m_lobDistance += 5;
                 }
             } else {
                 if(m_shooterSubsystem.m_targetDistance == Constants.TARGET_SHOOT_MAX_DISTANCE) { // Cant go above max distance (30)
                     RobotContainer.getRumbleCommand(0.1).schedule();; // 
                 } else {
-                    m_shooterSubsystem.getLEDStrip().reset();
+                    m_ledSubsystem.getLEDStrip().reset();
                     m_shooterSubsystem.m_targetDistance += 5;
                 }
             }
@@ -143,14 +146,14 @@ public class ButtonManager {
                 if(m_shooterSubsystem.m_lobDistance == Constants.LOB_SHOOT_MIN_DISTANCE) {
                     RobotContainer.getRumbleCommand(0.1).schedule();;
                 } else {
-                    m_shooterSubsystem.getLEDStrip().reset();
+                    m_ledSubsystem.getLEDStrip().reset();
                     m_shooterSubsystem.m_lobDistance -=5;
                 }
             } else {
                 if(m_shooterSubsystem.m_targetDistance == Constants.TARGET_SHOOT_MIN_DISTANCE) {
                     RobotContainer.getRumbleCommand(0.1).schedule();;
                 } else {
-                    m_shooterSubsystem.getLEDStrip().reset();
+                    m_ledSubsystem.getLEDStrip().reset();
                     m_shooterSubsystem.m_targetDistance -=5;
                 }
             }
@@ -164,6 +167,14 @@ public class ButtonManager {
 
         startButton.whenPressed(new InstantCommand(() -> {
             m_storageSubsystem.getCompressor().start();
+        }));
+
+        dpadRight.whenPressed(new InstantCommand(() -> {
+            m_ledSubsystem.getLEDStrip().indexPattern(true);
+        }));
+
+        dpadLeft.whenPressed(new InstantCommand(() -> {
+            m_ledSubsystem.getLEDStrip().indexPattern(false);
         }));
 
         // ---------------- Diagnostic Buttons ----------------

@@ -26,15 +26,12 @@ public class RobotContainer {
     // Robot Subsystems
     private final static DrivebaseSubsystem m_drivebaseSubsystem = new DrivebaseSubsystem();
 
-    // TrajectoryManager must be instantiated after DrivebaseSubsystem since it
-    // relies on it
-    
-
     private final static LidarManager m_lidarManager = new LidarManager();
     private final static AcquisitionSubsystem m_acquisitionSubsystem = new AcquisitionSubsystem();
-    private final static ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
+    private final static LEDSubsystem m_ledSubsystem = new LEDSubsystem();
+    private final static ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem(m_ledSubsystem);
     private final static StorageSubsystem m_storageSubsystem = new StorageSubsystem(m_shooterSubsystem);
-    private final static ButtonManager m_buttonManager = new ButtonManager(m_shooterSubsystem, m_storageSubsystem, m_acquisitionSubsystem);
+    private final static ButtonManager m_buttonManager = new ButtonManager(m_shooterSubsystem, m_storageSubsystem, m_acquisitionSubsystem, m_ledSubsystem);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.

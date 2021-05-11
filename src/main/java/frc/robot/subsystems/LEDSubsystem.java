@@ -4,34 +4,45 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
+import frc.robot.Toolkit.CT_LEDStrip;
+import frc.robot.Toolkit.CT_LEDStrip.ColorPattern;
+import frc.robot.Toolkit.CT_LEDStrip.Speed;
 
 public class LEDSubsystem extends SubsystemBase {
 
-  public enum ColorPattern {
-
-    Patriotic(Color.kRed, Color.kBlue, Color.kWhite),
-    Christmas(Color.kRed, Color.kGreen),
-    Cougartech(Color.kOrange, Color.kBlack),
-    Snake(Color.kWhite, Color.kGreen, Color.kRed, Color.kGreen, Color.kRed, Color.kGreen, Color.kRed);
-
-    private Color[] pattern;
-
-    ColorPattern(Color... pattern) {
-      this.pattern = pattern;
-    }
-
-    public Color[] getPattern() {
-      return pattern;
-    }
-  }
+  public CT_LEDStrip m_led;
+  public final Color[] redPattern = {Color.kRed, Color.kWhite};
+  public final Color[] yellowPattern = {Color.kYellow, Color.kWhite};
+  public final Color[] greenPattern = {Color.kGreen, Color.kWhite};
+  public final Color[] bluePattern = {Color.kLightBlue, Color.kWhite};
 
   /** Creates a new LEDSubsystem. */
-  public LEDSubsystem() {}
+  public LEDSubsystem() {
+    m_led = new CT_LEDStrip(1);
+
+    m_led.addNormalPattern("Off", Color.kBlack);
+    m_led.addNormalPattern("Red", Color.kRed);
+    m_led.addMovingPattern("Christmas", Speed.Fast, ColorPattern.Christmas.getPattern());
+    m_led.addSnakePattern("Snake", Speed.Ridiculous, Color.kBlack, ColorPattern.SnakeDefault.getPattern());
+    m_led.addRainbowPattern();
+    m_led.addNormalPattern("Blindness", Color.kWhite);
+  }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+
+    SmartDashboard.putString("Current Pattern", m_led.getCurrentPatternString());
+
+    if(!RobotContainer.getShooterSubsystem().isShooting())
+      m_led.getCurrentPattern().run();
   }
+
+  public CT_LEDStrip getLEDStrip() {
+    return m_led;
+  }
+
 }

@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.Toolkit.CT_LEDStrip;
+import frc.robot.Toolkit.CT_LEDStrip.ColorPattern;
 import frc.robot.Toolkit.CT_LEDStrip.Speed;
 import frc.robot.util.ShooterMotor;
 import frc.robot.util.ShooterMotor.ShootingType;
@@ -13,6 +14,7 @@ import edu.wpi.first.wpilibj.util.Color;
 
 public class ShooterSubsystem extends SubsystemBase {
 
+    private LEDSubsystem m_ledSubsystem;
     private ShooterMotor m_shooterMotor;
     private Solenoid m_bopper;
     private boolean m_isShooting;
@@ -21,27 +23,18 @@ public class ShooterSubsystem extends SubsystemBase {
     public int m_targetDistance;
     private CT_LEDStrip m_led;
 
-    private Color[] colorPatternRed = {Color.kRed, Color.kWhite};
-    private Color[] colorPatternOrange = {Color.kOrange, Color.kWhite};
-    private Color[] colorPatternYellow = {Color.kYellow, Color.kWhite};
-    private Color[] colorPatternGreen = {Color.kGreen, Color.kWhite};
-
-    private Color[] colorPatternPatriotic = {Color.kRed, Color.kBlue, Color.kWhite};
-    private Color[] colorPatternChrist = {Color.kGreen, Color.kRed};
-    private Color[] colorPatternTeam = {Color.kBlack, Color.kOrange};
-
-    public ShooterSubsystem() {
+    public ShooterSubsystem(LEDSubsystem ledSubsystem) {
         register();
 
         m_shooterMotor = new ShooterMotor(this);
         m_bopper = new Solenoid(Constants.PCM_CAN_ID, Constants.BOPPER_PCM_PORT);
 
+        m_ledSubsystem = ledSubsystem;
         m_isShooting = false;
         m_isMotorUpToSpeed = false;
         m_lobDistance = Constants.LOB_SHOOT_MIN_DISTANCE;
         m_targetDistance = Constants.TARGET_SHOOT_MIN_DISTANCE;
-        m_led = new CT_LEDStrip(1);
-        m_led.setColor(colorPatternTeam);
+        m_led = ledSubsystem.m_led;
         
     }
 
@@ -64,33 +57,27 @@ public class ShooterSubsystem extends SubsystemBase {
         
             if(m_shooterMotor.getShootingType() == ShootingType.LobShoot) {
                 if(m_lobDistance == 5) {
-                    m_led.setMovingColors(Speed.Slow, colorPatternGreen);
+                    m_led.doMovingColors(Speed.Slow, m_ledSubsystem.bluePattern);
                 } else if (m_lobDistance == 10) {
-                    m_led.setMovingColors(Speed.Fast, colorPatternYellow);
+                    m_led.doMovingColors(Speed.Fast, m_ledSubsystem.greenPattern);
                 } else if (m_lobDistance == 15) {
-                    m_led.setMovingColors(Speed.VeryFast, colorPatternOrange);
+                    m_led.doMovingColors(Speed.VeryFast, m_ledSubsystem.yellowPattern);
                 } else {
-                    m_led.setMovingColors(Speed.Ridiculous, colorPatternRed);
+                    m_led.doMovingColors(Speed.Ridiculous, m_ledSubsystem.redPattern);
                 }
             } else {
                 if(m_targetDistance == 10) {
-                    m_led.setMovingColors(Speed.Slow, colorPatternGreen);
+                    m_led.doMovingColors(Speed.Slow, m_ledSubsystem.bluePattern);
                 } else if (m_targetDistance == 15) {
-                    m_led.setMovingColors(Speed.Fast, colorPatternYellow);
+                    m_led.doMovingColors(Speed.Fast, m_ledSubsystem.greenPattern);
                 } else if (m_targetDistance == 20) {
-                    m_led.setMovingColors(Speed.VeryFast, colorPatternOrange);
+                    m_led.doMovingColors(Speed.VeryFast, m_ledSubsystem.yellowPattern);
                 } else {
-                    m_led.setMovingColors(Speed.Ridiculous, colorPatternRed);
+                    m_led.doMovingColors(Speed.Ridiculous, m_ledSubsystem.redPattern);
                 }
             }
 
-        } else {
-            m_led.setColor(Color.kBlack);
         }
-    }
-
-    public CT_LEDStrip getLEDStrip() {
-        return m_led;
     }
 
     public boolean isShooterMotorUpToSpeed() {
