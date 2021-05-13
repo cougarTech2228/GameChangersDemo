@@ -5,10 +5,21 @@ import java.util.ArrayList;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.Toolkit.CT_LEDStrip.GlowColor;
 import frc.robot.Toolkit.CT_LEDStrip.MovementType;
 import frc.robot.Toolkit.CT_LEDStrip.Speed;
 
 public class CT_LEDStrip extends AddressableLED {
+
+    private final static double GLOW_MAX = 1;
+    private final static double GLOW_MIN = 0.05;
+    /**
+     * We want to increase by 8 out of 255, and as the color class
+     * takes values from (0 - 1) instead of (0 - 255),
+     * (0.0314 to 1) = (8 to 255)
+     */ 
+    private final static double INCREASE_VALUE = 0.0314;
+
 
     private AddressableLEDBuffer m_LEDBuffer;
     private int m_rainbowFirstPixelHue = 0;
@@ -19,12 +30,16 @@ public class CT_LEDStrip extends AddressableLED {
     private int m_movingColorsCounter = 0;
     private int m_movingColorIndex = 0;
 
+    private int m_glowCounter = 0;
+    private double m_glowIndex = 0;
+    private boolean m_isGlowReverse = false;
+
     private ArrayList<LEDKey> patterns;
     private int patternsIndex;
 
     /**
      * Speed Values for Moving and Snake colors
-     * Time values listed are calculated on 2ms clock
+     * Time values listed are calculated on 20ms clock
      */
     public enum Speed {
         /**
@@ -63,7 +78,14 @@ public class CT_LEDStrip extends AddressableLED {
          * 
          * Recommended background: Black
          */
-        SnakeDefault(Color.kGreen, Color.kRed, Color.kGreen, Color.kRed, Color.kGreen, Color.kRed, Color.kWhite);
+        SnakeDefault(Color.kGreen, Color.kRed, Color.kGreen, Color.kRed, Color.kGreen, Color.kRed, Color.kWhite),
+        SnakePacman(
+            Color.kLightBlue, Color.kLightBlue, Color.kLightBlue, Color.kBlack, 
+            Color.kPink, Color.kPink, Color.kPink, Color.kBlack, 
+            Color.kRed, Color.kRed, Color.kRed, Color.kBlack, 
+            Color.kOrange, Color.kOrange, Color.kOrange, Color.kBlack, Color.kBlack,
+            Color.kYellow, Color.kYellow, Color.kYellow
+        );
     
         private Color[] pattern;
     
@@ -76,7 +98,7 @@ public class CT_LEDStrip extends AddressableLED {
         }
       }
 
-      protected enum MovementType{
+      protected enum MovementType {
           /**
            * Uses setColor()
            */
@@ -92,7 +114,38 @@ public class CT_LEDStrip extends AddressableLED {
           /**
            * Uses doRainbow()
            */
-          Rainbow
+          Rainbow,
+          /**
+           * Uses doGlow()
+           */
+          Glow
+      }
+
+      /**
+       * Due to the complexity of altering RGB values to simulate a glow,
+       * the following preset colors are simple enough to use for a gradient
+       * without some complex formula.
+       */
+      public enum GlowColor {
+
+        Red(0),
+        Green(1),
+        Blue(2),
+        Yellow(3),
+        Purple(4),
+        Cyan(5),
+        White(6);
+
+
+        private int colorKey;
+
+        GlowColor(int colorKey) {
+            this.colorKey = colorKey;
+        }
+
+        public int getColorKey() {
+            return colorKey;
+        }
       }
 
     /**
@@ -133,6 +186,8 @@ public class CT_LEDStrip extends AddressableLED {
 
         m_movingColorsCounter = 0;
         m_movingColorIndex = 0;
+
+        m_glowCounter = 0;
     }
 
     /**
@@ -347,6 +402,54 @@ public class CT_LEDStrip extends AddressableLED {
     public void doSnake(Speed speed, Color backgroundColor, ColorPattern pattern) {
         this.doSnake(speed, backgroundColor, pattern.getPattern());
     }
+
+    /**
+     * Does a glow appearance across the LED strip. This method should be
+     * called in the periodic of a subsytem to gain full effect.
+     * 
+     * @param glowColor preset color
+     */
+    public void doGlow(GlowColor glowColor) {
+
+        if(hasWaited(Speed.Ludicrous, m_glowCounter)) {
+            
+            setGlowColor(glowColor.getColorKey());
+
+            if(!m_isGlowReverse) {
+                if(m_glowIndex < GLOW_MAX) {
+                    m_glowIndex += INCREASE_VALUE;
+                } else {
+                    m_isGlowReverse = true;
+                }
+            } else {
+                if(m_glowIndex > GLOW_MIN) {
+                    m_glowIndex -= INCREASE_VALUE;
+                } else {
+                    m_isGlowReverse = false;
+                }
+            }
+
+            m_glowCounter = 0;
+        } else {
+            m_glowCounter++;
+        }
+    }
+
+    /**
+     * Sets the color with the glow index in the correct space to alter the color's shade.
+     */
+    private void setGlowColor(int colorKey) {
+        switch(colorKey) {
+            case 0: setColor(new Color(m_glowIndex, 0, 0)); break;
+            case 1: setColor(new Color(0, m_glowIndex, 0)); break;
+            case 2: setColor(new Color(0, 0, m_glowIndex)); break;
+            case 3: setColor(new Color(m_glowIndex, m_glowIndex, 0)); break;
+            case 4: setColor(new Color(m_glowIndex, 0, m_glowIndex)); break;
+            case 5: setColor(new Color(0, m_glowIndex, m_glowIndex)); break;
+            case 6: setColor(new Color(m_glowIndex, m_glowIndex, m_glowIndex)); break;
+            default: System.out.println("Error in CT_LEDStrip, unexpected glow color key found: " + colorKey);
+        }
+    }
     
     /**
      * Creates a rainbow effect on the LED strip.
@@ -378,19 +481,23 @@ public class CT_LEDStrip extends AddressableLED {
      */
 
     public void addNormalPattern(String key, Color... colorPattern) {
-        patterns.add(new LEDKey(key, null, null, MovementType.Normal, colorPattern));
+        patterns.add(new LEDKey(key, null, null, MovementType.Normal, null, colorPattern));
     }
 
     public void addMovingPattern(String key, Speed speed, Color... colorPattern) {
-        patterns.add(new LEDKey(key, speed, null, MovementType.Moving, colorPattern));
+        patterns.add(new LEDKey(key, speed, null, MovementType.Moving, null, colorPattern));
     }
 
     public void addSnakePattern(String key, Speed speed, Color backgroundColor, Color... colorPattern) {
-        patterns.add(new LEDKey(key, speed, backgroundColor, MovementType.Snake, colorPattern));
+        patterns.add(new LEDKey(key, speed, backgroundColor, MovementType.Snake, null, colorPattern));
     }
 
     public void addRainbowPattern() {
-        patterns.add(new LEDKey("Rainbow", null, null, MovementType.Rainbow));
+        patterns.add(new LEDKey("Rainbow", null, null, MovementType.Rainbow, null));
+    }
+
+    public void addGlowPattern(String key, GlowColor glowColor) {
+        patterns.add(new LEDKey(key, null, null, MovementType.Glow, glowColor));
     }
 
     /**
@@ -432,6 +539,8 @@ public class CT_LEDStrip extends AddressableLED {
             return () -> doMovingColors(speed, colorPattern);
         } else if(movementType == MovementType.Snake) {
             return () -> doSnake(speed, curKey.backgroundColor, colorPattern);
+        } else if(movementType == MovementType.Glow) {
+            return () -> doGlow(curKey.glowColor);
         } else {
             return () -> doRainbow();
         }
@@ -448,7 +557,7 @@ public class CT_LEDStrip extends AddressableLED {
 }
 
 /**
- * The structure that holds the key information for specific patterns
+ * The class that holds the key information for specific patterns
  */
 class LEDKey {
 
@@ -456,10 +565,12 @@ class LEDKey {
     public Speed speed;
     public Color backgroundColor;
     public MovementType movementType;
+    public GlowColor glowColor;
     public String key;
 
-    LEDKey(String key, Speed speed, Color backgroundColor, MovementType movementType, Color... colorPattern) {
+    LEDKey(String key, Speed speed, Color backgroundColor, MovementType movementType, GlowColor glowColor, Color... colorPattern) {
         this.key = key;
+        this.glowColor = glowColor;
         this.colorPattern = colorPattern;
         this.speed = speed;
         this.backgroundColor = backgroundColor;

@@ -131,6 +131,10 @@ public class RobotContainer {
         return m_shooterSubsystem;
     }
 
+    public static LEDSubsystem getLEDSubsystem() {
+        return m_ledSubsystem;
+    }
+
     public static LidarManager getLidarManager() {
         return m_lidarManager;
     }

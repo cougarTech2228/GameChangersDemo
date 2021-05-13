@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Toolkit.CT_LEDStrip;
 import frc.robot.Toolkit.CT_LEDStrip.ColorPattern;
+import frc.robot.Toolkit.CT_LEDStrip.GlowColor;
 import frc.robot.Toolkit.CT_LEDStrip.Speed;
 
 public class LEDSubsystem extends SubsystemBase {
@@ -18,7 +19,7 @@ public class LEDSubsystem extends SubsystemBase {
   public final Color[] redPattern = {Color.kRed, Color.kWhite};
   public final Color[] yellowPattern = {Color.kYellow, Color.kWhite};
   public final Color[] greenPattern = {Color.kGreen, Color.kWhite};
-  public final Color[] bluePattern = {Color.kLightBlue, Color.kWhite};
+  public final Color[] bluePattern = {Color.kDarkBlue, Color.kWhite};
 
   /** Creates a new LEDSubsystem. */
   public LEDSubsystem() {
@@ -27,9 +28,11 @@ public class LEDSubsystem extends SubsystemBase {
     m_led.addNormalPattern("Off", Color.kBlack);
     m_led.addNormalPattern("Red", Color.kRed);
     m_led.addMovingPattern("Christmas", Speed.Fast, ColorPattern.Christmas.getPattern());
-    m_led.addSnakePattern("Snake", Speed.Ridiculous, Color.kBlack, ColorPattern.SnakeDefault.getPattern());
+    m_led.addSnakePattern("Snake", Speed.Ludicrous, Color.kBlack, ColorPattern.SnakeDefault.getPattern());
     m_led.addRainbowPattern();
-    m_led.addNormalPattern("Blindness", Color.kWhite);
+    m_led.addGlowPattern("Yellow Glow", GlowColor.Red);
+    //m_led.addSnakePattern("Pacman", Speed.Ludicrous, Color.kBlack, ColorPattern.SnakePacman.getPattern());
+    
   }
 
   @Override
@@ -39,6 +42,7 @@ public class LEDSubsystem extends SubsystemBase {
 
     if(!RobotContainer.getShooterSubsystem().isShooting())
       m_led.getCurrentPattern().run();
+
   }
 
   public CT_LEDStrip getLEDStrip() {

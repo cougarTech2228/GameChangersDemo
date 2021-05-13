@@ -34,6 +34,7 @@ public class ShootCommand extends CommandBase {
     m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_FAST);
     m_timesShot = 0;
     m_isBopping = false;
+    RobotContainer.getLEDSubsystem().getLEDStrip().reset();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
