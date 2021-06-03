@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Toolkit.CT_DigitalInput;
 
@@ -25,14 +26,15 @@ public class StorageSubsystem extends SubsystemBase {
         m_spinningBarMotor = new WPI_TalonSRX(Constants.SPINNING_BAR_MOTOR_CAN_ID);
 
         m_drumShooterPositionInput = new CT_DigitalInput(Constants.SHOOTER_POSITION_DIO);
-        m_drumShooterPositionInput.setAutomaticInterrupt(() -> {
-            //m_timesDrumsStopped++;
-            stopDrumMotor();
-            // if(m_timesDrumsStopped <= 3) {
-            //     RobotContainer.getBopperCommand()
-            //     .andThen(() -> startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_FAST)).schedule();
-            // }
-        }, true);
+        // m_drumShooterPositionInput.setAutomaticInterrupt(() -> {
+        //     System.out.println("drum input");
+        //     stopDrumMotor();
+        //     // if(m_timesDrumsStopped <= 3) {
+        //     //     RobotContainer.getBopperCommand()
+        //     //     .andThen(() -> startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_FAST)).schedule();
+        //     // }
+        // }, false);
+        m_drumShooterPositionInput.setInterrupt(() -> stopDrumMotor(), false, true);
         m_compressor = new Compressor();
         
         m_doIndexing = false;
@@ -41,9 +43,14 @@ public class StorageSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+
+        SmartDashboard.putBoolean("drumShooterPositionInput", m_drumShooterPositionInput.get());
+
         boolean[] drumConditions = {
             (m_shooterSubsystem.isShooting() || m_doIndexing) 
         };
+
+        //System.out.println(m_drumShooterPositionInput.get());
 
         // Only index the drum when the robot is either shooting or is instructed to through manual indexing (changing of the m_doIndexing variable)
         m_drumShooterPositionInput.onlyHandleInterruptsWhen(drumConditions);

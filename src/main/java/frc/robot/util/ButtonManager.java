@@ -184,13 +184,13 @@ public class ButtonManager {
         // bButton.whenPressed(new InstantCommand(() -> m_lidarManager.getLidar().reset()));
 
         // Index Drum
-        //bButton.whenPressed(new InstantCommand(() -> m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_SLOW)).beforeStarting(() -> m_storageSubsystem.doIndexing(true)));
+        //bButton.whenPressed(new InstantCommand(() -> m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_FAST)).beforeStarting(() -> m_storageSubsystem.doIndexing(true)));
         
         // Start Drum
         //bButton.whenPressed(new InstantCommand(() -> m_storageSubsystem.startDrumMotor(Constants.DRUM_MOTOR_VELOCITY_SLOW)));
 
         // Stop Drum
-        //aButton.whenPressed(new InstantCommand(() -> m_storageSubsystem.stopDrumMotor()));
+        //leftBumper.whenPressed(new InstantCommand(() -> m_storageSubsystem.stopDrumMotor()));
 
         // Start Bar Motor
         // bButton.whenPressed(new InstantCommand(() -> m_storageSubsystem.startBarMotor()));
